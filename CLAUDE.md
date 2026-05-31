@@ -40,13 +40,13 @@ airflow standalone
 ## Code Style
 
 - PEP 8 via ruff — line length 100
-- Type annotations trên mọi function signature (mypy strict)
-- `snake_case` cho variables, functions, files
-- `PascalCase` cho classes
-- `UPPER_SNAKE_CASE` cho constants
-- Frozen dataclasses cho DTOs / config objects
-- Context managers (`with`) cho resource management
-- Không dùng `print()` — dùng `logging` module hoặc `loguru`
+- Type annotations on every function signature (mypy strict)
+- `snake_case` for variables, functions, files
+- `PascalCase` for classes
+- `UPPER_SNAKE_CASE` for constants
+- Frozen dataclasses for DTOs / config objects
+- Context managers (`with`) for resource management
+- Avoid `print()` — use `logging` module or `loguru`
 
 ## Project Structure
 
@@ -64,19 +64,19 @@ data-platform/
 ## Key Conventions
 
 ### Data Pipeline
-- Mỗi DAG nên có `doc_md` và `owner` attribute
-- dbt models: tên file = tên model, dùng `ref()` thay vì table name cứng
-- Sources khai báo trong `dbt/sources.yml`, freshness test cho mọi source
-- Idempotent pipelines: chạy lại nhiều lần không tạo duplicate data
+- Each DAG should have `doc_md` and `owner` attributes
+- dbt models: file name = model name, use `ref()` instead of hardcoded table names
+- Sources declared in `dbt/sources.yml`, freshness test for every source
+- Idempotent pipelines: rerunning multiple times does not create duplicate data
 
 ### Database
-- Parameterized queries — không string interpolation
-- Migration files (dbt snapshots hoặc Alembic) cho schema changes
-- Không hardcode connection strings — dùng env vars
+- Parameterized queries — no string interpolation
+- Migration files (dbt snapshots or Alembic) for schema changes
+- Don't hardcode connection strings — use env vars
 
 ### Testing
-- Unit test cho transformers, validators, utility functions
-- Integration test cho database queries và dbt models (dbt test)
+- Unit tests for transformers, validators, utility functions
+- Integration tests for database queries and dbt models (dbt test)
 - Airflow DAG integrity test: `airflow dags test <dag_id>`
 
 ## Skills
@@ -85,10 +85,10 @@ Use the following skills when working on related tasks:
 
 | Task | Skill |
 |------|-------|
-| `**/*.py` (viết/review/refactor Python) | `python-patterns` |
-| `tests/**`, viết test, setup pytest | `python-testing` |
-| Feature mới, fix bug, refactor | `tdd-workflow` |
-| Trước PR, after feature complete | `verification-loop` |
+| `**/*.py` (write/review/refactor Python) | `python-patterns` |
+| `tests/**`, write tests, setup pytest | `python-testing` |
+| New features, bug fixes, refactoring | `tdd-workflow` |
+| Before PR, after feature complete | `verification-loop` |
 | `**/dags/**`, `**/dbt/**`, pipeline code | `data-pipeline` |
 | Schema changes, migrations, Alembic | `database-migrations` |
 | API endpoints, REST design | `api-design` |
