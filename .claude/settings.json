@@ -1,0 +1,65 @@
+{
+  "rules": [
+    ".claude/rules/common",
+    ".claude/rules/python"
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "glob": "**/*.py",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && uv run ruff format \"$CLAUDE_TOOL_INPUT_FILE_PATH\" 2>$null; exit 0"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "glob": "**/*.py",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && uv run ruff check \"$CLAUDE_TOOL_INPUT_FILE_PATH\" --output-format concise 2>$null; exit 0"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "glob": "**/git commit*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && uv run ruff check . 2>&1 | head -20; uv run mypy . 2>&1 | head -20; uv run pytest --tb=short 2>&1 | tail -15; exit 0"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[ECC] Reminder: Run /verification-loop before creating a PR'; exit 0"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "uv *",
+      "python *",
+      "pytest *",
+      "ruff *",
+      "mypy *",
+      "dbt *",
+      "airflow *",
+      "git *"
+    ],
+    "deny": []
+  }
+}
