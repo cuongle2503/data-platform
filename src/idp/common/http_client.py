@@ -124,12 +124,12 @@ class HttpClient:
             except httpx.RequestError as e:
                 last_error = e
                 logger.warning(
-                    f"Network error on attempt {attempt + 1}/{self.max_retries + 1}: {str(e)}"
+                    f"Network error on attempt {attempt + 1}/{self.max_retries + 1}: {e!s}"
                 )
 
             except Exception as e:
                 last_error = e
-                logger.error(f"Unexpected error during GET request: {str(e)}")
+                logger.error(f"Unexpected error during GET request: {e!s}")
                 break
 
             attempt += 1
@@ -141,5 +141,5 @@ class HttpClient:
 
         raise IngestionError(
             f"HTTP request failed after {self.max_retries} retries. "
-            f"Last error: {str(last_error)}"
+            f"Last error: {last_error!s}"
         ) from last_error

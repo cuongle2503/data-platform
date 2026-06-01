@@ -1,13 +1,12 @@
 """Unit tests for config module."""
 
 from idp.common.config import (
-    WorldBankConfig,
-    Settings,
-    get_settings,
-    get_wb_indicators,
-    get_wb_countries,
-    INDICATORS,
     COUNTRIES,
+    INDICATORS,
+    WorldBankConfig,
+    get_settings,
+    get_wb_countries,
+    get_wb_indicators,
 )
 
 

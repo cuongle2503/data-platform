@@ -1,11 +1,12 @@
 """Unit tests for HTTP client with retry and rate limiting."""
 
-import pytest
-from unittest.mock import AsyncMock, patch, Mock
-import httpx
+from unittest.mock import AsyncMock, Mock, patch
 
-from idp.common.http_client import HttpClient
+import httpx
+import pytest
+
 from idp.common.exceptions import IngestionError
+from idp.common.http_client import HttpClient
 
 
 @pytest.mark.asyncio

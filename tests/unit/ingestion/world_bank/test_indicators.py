@@ -1,13 +1,14 @@
 """Unit tests for World Bank indicators module."""
 
-import pytest
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock
 
+import pytest
+
+from idp.common.exceptions import IngestionError
 from idp.ingestion.world_bank.indicators import (
     fetch_indicator_data,
     fetch_multiple_indicators,
 )
-from idp.common.exceptions import IngestionError
 
 
 @pytest.mark.asyncio

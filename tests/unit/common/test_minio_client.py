@@ -1,13 +1,11 @@
 """Unit tests for MinIO client wrapper."""
 
-import io
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
-import pytest
 import polars as pl
+import pytest
 
 from idp.common.minio_client import MinioClient
-from idp.common.exceptions import IdpError
 
 
 @pytest.fixture

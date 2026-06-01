@@ -44,7 +44,7 @@ class MinioClient:
             )
             logger.debug(f"Initialized MinIO client for {endpoint}")
         except Exception as e:
-            raise StorageError(f"Failed to initialize MinIO client: {str(e)}") from e
+            raise StorageError(f"Failed to initialize MinIO client: {e!s}") from e
 
     def _ensure_bucket_exists(self) -> None:
         """Create bucket if it doesn't exist."""
@@ -53,7 +53,7 @@ class MinioClient:
                 self.client.make_bucket(self.bucket_name)
                 logger.info(f"Created bucket '{self.bucket_name}'")
         except Exception as e:
-            raise StorageError(f"Error ensuring bucket '{self.bucket_name}': {str(e)}") from e
+            raise StorageError(f"Error ensuring bucket '{self.bucket_name}': {e!s}") from e
 
     def upload_dataframe(self, df: pl.DataFrame, object_name: str) -> str:
         """Upload a Polars DataFrame as Parquet to MinIO.
@@ -90,8 +90,8 @@ class MinioClient:
             return f"{self.bucket_name}/{object_name}"
 
         except Exception as e:
-            logger.error(f"Failed to upload DataFrame to {object_name}: {str(e)}")
-            raise StorageError(f"Upload failed: {str(e)}") from e
+            logger.error(f"Failed to upload DataFrame to {object_name}: {e!s}")
+            raise StorageError(f"Upload failed: {e!s}") from e
 
     def check_exists(self, object_name: str) -> bool:
         """Check if an object exists in the bucket.
@@ -109,9 +109,9 @@ class MinioClient:
             if e.code in ("NoSuchKey", "Not found"):
                 return False
             # Re-raise unexpected S3 errors
-            raise StorageError(f"Error checking if {object_name} exists: {str(e)}") from e
+            raise StorageError(f"Error checking if {object_name} exists: {e!s}") from e
         except Exception as e:
-            raise StorageError(f"Unexpected error checking {object_name}: {str(e)}") from e
+            raise StorageError(f"Unexpected error checking {object_name}: {e!s}") from e
 
     def list_objects(self, prefix: str = "") -> list[str]:
         """List objects in the bucket with a given prefix.
@@ -130,4 +130,4 @@ class MinioClient:
             return [obj.object_name for obj in objects]
 
         except Exception as e:
-            raise StorageError(f"Failed to list objects with prefix '{prefix}': {str(e)}") from e
+            raise StorageError(f"Failed to list objects with prefix '{prefix}': {e!s}") from e

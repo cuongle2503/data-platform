@@ -4,8 +4,8 @@ import asyncio
 import logging
 from typing import Any
 
-from idp.common.http_client import HttpClient
 from idp.common.exceptions import IngestionError
+from idp.common.http_client import HttpClient
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ async def fetch_indicator_data(
         if isinstance(e, IngestionError):
             raise
         raise IngestionError(
-            f"Failed to fetch indicator data {indicator_code} for {country_code}: {str(e)}"
+            f"Failed to fetch indicator data {indicator_code} for {country_code}: {e!s}"
         ) from e
 
 
@@ -118,7 +118,7 @@ async def fetch_multiple_indicators(
     for i, result in enumerate(results):
         indicator_code = indicators[i]["code"]
         if isinstance(result, Exception):
-            logger.error(f"Failed to fetch indicator {indicator_code}: {str(result)}")
+            logger.error(f"Failed to fetch indicator {indicator_code}: {result!s}")
         else:
             all_records.extend(result)
 

@@ -1,11 +1,11 @@
 """Tests for World Bank indicators pipeline."""
 
-import pytest
-from unittest.mock import AsyncMock, Mock, patch
-import polars as pl
+from unittest.mock import AsyncMock
 
-from idp.ingestion.world_bank.pipeline import WorldBankIndicatorsPipeline
+import pytest
+
 from idp.common.config import Settings
+from idp.ingestion.world_bank.pipeline import WorldBankIndicatorsPipeline
 
 
 @pytest.fixture

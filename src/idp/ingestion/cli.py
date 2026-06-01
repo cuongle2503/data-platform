@@ -1,15 +1,12 @@
 """CLI interface for data ingestion commands."""
 
 import argparse
-import asyncio
 import logging
-import sys
-from typing import Any
 
 import polars as pl
 
+from idp.common.config import get_settings
 from idp.common.minio_client import MinioClient
-from idp.common.config import get_settings, get_wb_indicators
 from idp.ingestion.world_bank.pipeline import WorldBankIndicatorsPipeline
 
 logger = logging.getLogger(__name__)
@@ -94,7 +91,7 @@ async def main(argv: list[str] | None = None) -> int:
             return 1
 
     except Exception as e:
-        logger.error(f"Ingestion failed: {str(e)}")
+        logger.error(f"Ingestion failed: {e!s}")
         return 1
 
 

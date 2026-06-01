@@ -1,13 +1,12 @@
 """Unit tests for World Bank bronze schema."""
 
-import pytest
 from datetime import datetime
+
 import pyarrow as pa
 
 from idp.ingestion.world_bank.bronze_schema import (
     get_indicator_schema,
     validate_records,
-    INDICATOR_SCHEMA_FIELDS,
 )
 
 

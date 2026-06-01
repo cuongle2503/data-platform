@@ -1,19 +1,14 @@
 """World Bank indicators ingestion pipeline."""
 
-import asyncio
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
-import polars as pl
-import pyarrow as pa
-
 from idp.common.config import Settings, get_settings
-from idp.common.http_client import HttpClient
-from idp.common.minio_client import MinioClient
 from idp.common.exceptions import IngestionError
-from idp.ingestion.world_bank.indicators import fetch_indicator_data, fetch_multiple_indicators
+from idp.common.http_client import HttpClient
 from idp.ingestion.world_bank.bronze_schema import validate_records
+from idp.ingestion.world_bank.indicators import fetch_indicator_data, fetch_multiple_indicators
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +74,7 @@ class WorldBankIndicatorsPipeline:
             "indicator_name": record.get("indicator", {}).get("value", ""),
             "year": int(record["date"]),
             "value": float(record["value"]) if record["value"] is not None else None,
-            "ingested_at": datetime.now(timezone.utc),
+            "ingested_at": datetime.now(UTC),
             "source": "world_bank_api",
         }
 
@@ -116,10 +111,10 @@ class WorldBankIndicatorsPipeline:
             return valid_records
 
         except IngestionError as e:
-            logger.warning(f"Ingestion error for {indicator_code}/{country_code}: {str(e)}")
+            logger.warning(f"Ingestion error for {indicator_code}/{country_code}: {e!s}")
             return []
         except Exception as e:
-            logger.error(f"Error fetching {indicator_code} for {country_code}: {str(e)}")
+            logger.error(f"Error fetching {indicator_code} for {country_code}: {e!s}")
             return []
 
     async def run(
