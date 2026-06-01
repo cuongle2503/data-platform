@@ -93,6 +93,24 @@ class MinioClient:
             logger.error(f"Failed to upload DataFrame to {object_name}: {e!s}")
             raise StorageError(f"Upload failed: {e!s}") from e
 
+    def read_dataframe(self, object_name: str) -> pl.DataFrame:
+        """Read a Parquet object from MinIO into a Polars DataFrame.
+
+        Args:
+            object_name: Path to the object in the bucket.
+
+        Returns:
+            Polars DataFrame containing the object data.
+            
+        Raises:
+            StorageError: If download or parsing fails.
+        """
+        try:
+            response = self.client.get_object(self.bucket_name, object_name)
+            return pl.read_parquet(io.BytesIO(response.read()))
+        except Exception as e:
+            raise StorageError(f"Failed to read {object_name}: {e!s}") from e
+
     def check_exists(self, object_name: str) -> bool:
         """Check if an object exists in the bucket.
 

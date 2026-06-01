@@ -163,3 +163,35 @@ def test_list_objects_empty(minio_client: MinioClient):
 
     # Assert
     assert result == []
+
+def test_read_dataframe_success(minio_client: MinioClient):
+    """Test reading a Parquet file from MinIO."""
+    # Arrange
+    import io
+
+    buffer = io.BytesIO()
+    df = pl.DataFrame({"a": [1, 2, 3]})
+    df.write_parquet(buffer)
+    buffer.seek(0)
+
+    mock_response = Mock()
+    mock_response.read.return_value = buffer.getvalue()
+
+    with patch.object(minio_client.client, "get_object", return_value=mock_response):
+        # Act
+        result_df = minio_client.read_dataframe("test_file.parquet")
+
+    # Assert
+    assert result_df.shape == (3, 1)
+    assert result_df["a"].to_list() == [1, 2, 3]
+
+
+def test_read_dataframe_failure(minio_client: MinioClient):
+    """Test read_dataframe raises StorageError on failure."""
+    # Arrange
+    from idp.common.exceptions import StorageError
+
+    with patch.object(minio_client.client, "get_object", side_effect=Exception("S3 error")):
+        # Act & Assert
+        with pytest.raises(StorageError, match="Failed to read test_file.parquet"):
+            minio_client.read_dataframe("test_file.parquet")
