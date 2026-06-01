@@ -15,7 +15,7 @@ class GeminiEmbeddingsClient:
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY environment variable is required")
 
-        genai.configure(api_key=self.api_key)
+        genai.configure(api_key=self.api_key, transport="rest")
         self.model_name = model_name
 
     @retry(
