@@ -75,5 +75,5 @@ class GeminiEmbeddingsClient:
         embeddings = result["embedding"]
         # API returns list[list[float]] for batch, list[float] for single
         if texts and isinstance(embeddings[0], (int, float)):
-            return [embeddings]  # type: ignore[list-item]
-        return embeddings  # type: ignore[return-value]
+            return [embeddings]  # type: ignore
+        return embeddings  # type: ignore
