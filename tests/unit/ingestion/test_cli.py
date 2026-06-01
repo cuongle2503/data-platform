@@ -85,3 +85,72 @@ async def test_main_no_command():
     # Assert
     assert result == 1
     mock_parser.print_help.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_main_ingest_docs_metadata():
+    """Test main function with ingest-docs-metadata command."""
+    with patch("idp.ingestion.cli.create_parser") as mock_create_parser:
+        mock_parser = Mock()
+        mock_args = Mock()
+        mock_args.command = "ingest-docs-metadata"
+        mock_args.countries = "VN"
+        mock_args.topic = None
+        mock_args.start_date = None
+        mock_args.end_date = None
+        mock_args.max_pages = 1
+        mock_parser.parse_args.return_value = mock_args
+        mock_create_parser.return_value = mock_parser
+
+        with patch("idp.ingestion.cli.WorldBankDocsPipeline") as mock_pipeline_cls:
+            mock_pipeline_inst = AsyncMock()
+            mock_pipeline_inst.run.return_value = [{"doc_id": "D1", "title": "Test"}]
+            mock_pipeline_cls.return_value = mock_pipeline_inst
+            mock_pipeline_cls.return_value.__aenter__.return_value = mock_pipeline_inst
+
+            with patch("idp.ingestion.cli.MinioClient") as mock_minio_cls:
+                mock_minio = Mock()
+                mock_minio.upload_dataframe.return_value = "bronze/test.parquet"
+                mock_minio_cls.return_value = mock_minio
+
+                result = await main(["ingest-docs-metadata", "--countries", "VN"])
+
+    assert result == 0
+    mock_pipeline_inst.run.assert_called_once_with(
+        countries=["VN"],
+        topic=None,
+        start_date=None,
+        end_date=None,
+        max_pages_per_country=1,
+    )
+    mock_minio.upload_dataframe.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_main_ingest_docs_text():
+    """Test main function with ingest-docs-text command."""
+    with patch("idp.ingestion.cli.create_parser") as mock_create_parser:
+        mock_parser = Mock()
+        mock_args = Mock()
+        mock_args.command = "ingest-docs-text"
+        mock_args.doc_id = "D1"
+        mock_args.txt_url = "http://test"
+        mock_args.chunk_size = 1500
+        mock_args.overlap = 150
+        mock_parser.parse_args.return_value = mock_args
+        mock_create_parser.return_value = mock_parser
+
+        with patch("idp.ingestion.world_bank.docs_text.fetch_and_chunk_doc") as mock_fetch:
+            mock_fetch.return_value = [{"chunk_id": "C1", "text": "test"}]
+            with patch("idp.common.http_client.HttpClient") as mock_http_cls:
+                mock_http = AsyncMock()
+                mock_http_cls.return_value = mock_http
+
+                with patch("idp.ingestion.cli.MinioClient") as mock_minio_cls:
+                    mock_minio = Mock()
+                    mock_minio.upload_dataframe.return_value = "bronze/test.parquet"
+                    mock_minio_cls.return_value = mock_minio
+
+                    result = await main(["ingest-docs-text", "--doc-id", "D1", "--txt-url", "http://test"])
+
+    assert result == 0
+    mock_fetch.assert_called_once()
+    mock_minio.upload_dataframe.assert_called_once()

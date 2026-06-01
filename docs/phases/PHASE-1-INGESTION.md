@@ -66,32 +66,32 @@
 **Priority**: MEDIUM  
 **Estimated Time**: 6 hours
 
-- [ ] Create `src/ingestion/world_bank/docs_metadata.py`:
+- [x] Create `src/ingestion/world_bank/docs_metadata.py`:
   - Implement `fetch_docs_metadata(country_code, topic, start_date, end_date)`
   - Map World Bank WDS API response to Bronze schema (doc_id, title, abstract, display_date, doc_type, pdf_url, countries, topics, language)
 
-- [ ] Define Document Metadata Schema:
+- [x] Define Document Metadata Schema:
   - Create PyArrow schema for metadata
 
-- [ ] Implement Metadata Pipeline:
+- [x] Implement Metadata Pipeline:
   - Fetch metadata, validate schema, upload to MinIO
   - Format output path: `world_bank/docs/metadata/year={YYYY}/data.parquet`
 
-- [ ] Write Unit/Integration Tests for metadata fetching
+- [x] Write Unit/Integration Tests for metadata fetching
 
 ### 1.4 World Bank Documents Text Extraction
 
 **Priority**: LOW (Deferred to later if needed, focus on Indicators first)  
 **Estimated Time**: 8 hours
 
-- [ ] Create `src/ingestion/world_bank/docs_text.py`:
+- [x] Create `src/ingestion/world_bank/docs_text.py`:
   - Implement `fetch_doc_text(doc_id)` using WDS `/text/` endpoint
   - Implement basic chunking strategy (~1500 chars with overlap)
 
-- [ ] Define Text Chunk Schema:
+- [x] Define Text Chunk Schema:
   - Create PyArrow schema for chunks (doc_id, chunk_id, chunk_index, text, etc.)
 
-- [ ] Implement Text Pipeline:
+- [x] Implement Text Pipeline:
   - Fetch text for documents found in metadata, chunk, upload
   - Format output path: `world_bank/docs/chunks/year={YYYY}/data.parquet`
 

@@ -114,12 +114,12 @@ async def fetch_multiple_indicators(
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    all_records = []
+    all_records: list[dict[str, Any]] = []
     for i, result in enumerate(results):
         indicator_code = indicators[i]["code"]
         if isinstance(result, Exception):
             logger.error(f"Failed to fetch indicator {indicator_code}: {result!s}")
-        else:
+        elif isinstance(result, list):
             all_records.extend(result)
 
     return all_records

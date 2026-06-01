@@ -1,5 +1,6 @@
 """Tests for World Bank indicators pipeline."""
 
+from unittest.mock import AsyncMock, patch
 from unittest.mock import AsyncMock
 
 import pytest
@@ -224,3 +225,40 @@ def test_normalize_record_none_value():
 
     # Assert
     assert result["value"] is None
+
+@pytest.mark.asyncio
+async def test_pipeline_run(mock_settings: Settings):
+    """Test full pipeline run for indicators."""
+    mock_http = AsyncMock()
+    pipeline = WorldBankIndicatorsPipeline(settings=mock_settings, http_client=mock_http)
+    
+    with patch('idp.ingestion.world_bank.pipeline.fetch_multiple_indicators', new_callable=AsyncMock) as mock_fetch:
+        mock_fetch.return_value = [
+            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
+             "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+             "date": "2023", "value": 100.0}
+        ]
+        
+        result = await pipeline.run(countries=["VN"], indicators=["NY.GDP.MKTP.CD"])
+        
+        assert len(result) == 1
+        assert result[0]["country_code"] == "VNM"
+        mock_fetch.assert_called()
+
+@pytest.mark.asyncio
+async def test_pipeline_run_multiple_countries(mock_settings: Settings):
+    """Test pipeline run across multiple countries."""
+    mock_http = AsyncMock()
+    pipeline = WorldBankIndicatorsPipeline(settings=mock_settings, http_client=mock_http)
+    
+    with patch('idp.ingestion.world_bank.pipeline.fetch_multiple_indicators', new_callable=AsyncMock) as mock_fetch:
+        mock_fetch.return_value = [
+            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
+             "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+             "date": "2023", "value": 100.0}
+        ]
+        
+        result = await pipeline.run(countries=["VN", "CN"])
+        
+        assert len(result) == 2
+        assert mock_fetch.call_count == 2
