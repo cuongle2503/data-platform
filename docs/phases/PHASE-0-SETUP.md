@@ -7,12 +7,12 @@
 
 ## Prerequisites Checklist
 
-- [ ] Python 3.11+ installed
-- [ ] Docker & Docker Compose installed
-- [ ] `uv` package manager installed (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
-- [ ] Git configured with user name and email
-- [ ] Access to server (16GB RAM, 512GB SSD)
-- [ ] Gemini API key obtained from Google AI Studio
+- [x] Python 3.11+ installed
+- [x] Docker & Docker Compose installed
+- [x] `uv` package manager installed (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- [x] Git configured with user name and email
+- [x] Access to server (16GB RAM, 512GB SSD)
+- [x] Gemini API key obtained from Google AI Studio
 
 ---
 
