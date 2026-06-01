@@ -44,6 +44,13 @@ docker compose up -d       # Start services
 - **dbt models**: file name = model name, use `ref()` not table names
 - **80% test coverage**: unit + integration + pipeline tests
 
+## Environment / Proxy Config
+
+**CRITICAL**: This environment requires proxy settings for external requests.
+- **Localhost connections** (MinIO, Postgres, local services) **MUST NOT** pass through proxy (use `NO_PROXY=localhost,127.0.0.1,minio,postgres`).
+- **External requests** (World Bank API, Gemini API, external packages) **MUST** pass through the proxy using `HTTP_PROXY` / `HTTPS_PROXY` environment variables.
+- Always include these proxy variables in Docker containers and HTTP client configurations (`httpx.AsyncClient(proxies=...)`).
+
 ## Project Status (2026-06-01)
 
 **Current**: Architecture docs complete, no code yet
