@@ -75,11 +75,10 @@
 **Priority**: MEDIUM (Deferred if docs text not ingested in Phase 1)  
 **Estimated Time**: 4 hours
 
-- [ ] Create `src/storage/generate_doc_embeddings.py`:
+- [x] Create `src/storage/generate_doc_embeddings.py`:
   - Query `raw_world_bank_docs_chunks` from Bronze/Silver
   - Call Gemini Embeddings API
   - Store results in `embeddings.economic_embeddings` with `ref_type='world_bank_report'`
-  *(Note: Deferred as chunking isn't implemented yet)*
 
 ### 3.6 Storage Access Layer (Repository)
 
