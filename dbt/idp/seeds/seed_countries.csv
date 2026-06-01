@@ -1,0 +1,21 @@
+country_code,country_name,region,income_group,is_asean,is_primary
+VNM,Vietnam,Asia,Lower-middle,TRUE,TRUE
+CHN,China,Asia,Upper-middle,FALSE,FALSE
+JPN,Japan,Asia,High,FALSE,FALSE
+KOR,South Korea,Asia,High,FALSE,FALSE
+SGP,Singapore,Asia,High,TRUE,FALSE
+IND,India,Asia,Lower-middle,FALSE,FALSE
+IDN,Indonesia,Asia,Upper-middle,TRUE,FALSE
+THA,Thailand,Asia,Upper-middle,TRUE,FALSE
+USA,United States,Americas,High,FALSE,FALSE
+DEU,Germany,Europe,High,FALSE,FALSE
+FRA,France,Europe,High,FALSE,FALSE
+GBR,United Kingdom,Europe,High,FALSE,FALSE
+RUS,Russia,Europe,Upper-middle,FALSE,FALSE
+BRA,Brazil,Americas,Upper-middle,FALSE,FALSE
+ZAF,South Africa,Africa,Upper-middle,FALSE,FALSE
+NGA,Nigeria,Africa,Lower-middle,FALSE,FALSE
+AUS,Australia,Oceania,High,FALSE,FALSE
+ARE,United Arab Emirates,Asia,High,FALSE,FALSE
+MEX,Mexico,Americas,Upper-middle,FALSE,FALSE
+CAN,Canada,Americas,High,FALSE,FALSE

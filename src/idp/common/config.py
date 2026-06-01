@@ -22,7 +22,7 @@ class PostgresConfig(BaseSettings):
     """PostgreSQL (Gold Layer) configuration."""
 
     host: str = Field(default="localhost")
-    port: int = Field(default=5432)
+    port: int = Field(default=5433)
     db: str = Field(default="idp")
     user: str = Field(default="idp_user")
     password: str = Field(default="changeme")
@@ -159,26 +159,26 @@ INDICATORS: list[dict[str, str]] = [
 
 # Default country list for World Bank ingestion
 COUNTRIES: list[dict[str, str]] = [
-    {"code": "VN", "name": "Vietnam"},
-    {"code": "CN", "name": "China"},
-    {"code": "JP", "name": "Japan"},
-    {"code": "KR", "name": "South Korea"},
-    {"code": "SG", "name": "Singapore"},
-    {"code": "IN", "name": "India"},
-    {"code": "ID", "name": "Indonesia"},
-    {"code": "TH", "name": "Thailand"},
-    {"code": "US", "name": "United States"},
-    {"code": "DE", "name": "Germany"},
-    {"code": "FR", "name": "France"},
-    {"code": "GB", "name": "United Kingdom"},
-    {"code": "RU", "name": "Russia"},
-    {"code": "BR", "name": "Brazil"},
-    {"code": "ZA", "name": "South Africa"},
-    {"code": "NG", "name": "Nigeria"},
-    {"code": "AU", "name": "Australia"},
-    {"code": "AE", "name": "United Arab Emirates"},
-    {"code": "MX", "name": "Mexico"},
-    {"code": "CA", "name": "Canada"},
+    {"code": "VNM", "name": "Vietnam"},
+    {"code": "CHN", "name": "China"},
+    {"code": "JPN", "name": "Japan"},
+    {"code": "KOR", "name": "South Korea"},
+    {"code": "SGP", "name": "Singapore"},
+    {"code": "IND", "name": "India"},
+    {"code": "IDN", "name": "Indonesia"},
+    {"code": "THA", "name": "Thailand"},
+    {"code": "USA", "name": "United States"},
+    {"code": "DEU", "name": "Germany"},
+    {"code": "FRA", "name": "France"},
+    {"code": "GBR", "name": "United Kingdom"},
+    {"code": "RUS", "name": "Russia"},
+    {"code": "BRA", "name": "Brazil"},
+    {"code": "ZAF", "name": "South Africa"},
+    {"code": "NGA", "name": "Nigeria"},
+    {"code": "AUS", "name": "Australia"},
+    {"code": "ARE", "name": "United Arab Emirates"},
+    {"code": "MEX", "name": "Mexico"},
+    {"code": "CAN", "name": "Canada"},
 ]
 
 

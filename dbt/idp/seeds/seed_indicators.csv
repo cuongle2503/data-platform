@@ -1,0 +1,34 @@
+indicator_code,indicator_name,source_system,category,unit,frequency,description
+NY.GDP.MKTP.CD,GDP (current US$),WDI,Economic,Current US$,Annual,GDP (current US$)
+NY.GDP.PCAP.CD,GDP per capita (current US$),WDI,Economic,Current US$,Annual,GDP per capita (current US$)
+NY.GDP.MKTP.KD.ZG,GDP growth (annual %),WDI,Economic,%,Annual,GDP growth (annual %)
+SP.POP.TOTL,"Population, total",WDI,Social,Count,Annual,"Population, total"
+SP.POP.GROW,Population growth (annual %),WDI,Social,Count,Annual,Population growth (annual %)
+NE.EXP.GNFS.ZS,Exports of goods and services (% of GDP),WDI,Economic,%,Annual,Exports of goods and services (% of GDP)
+NE.IMP.GNFS.ZS,Imports of goods and services (% of GDP),WDI,Economic,%,Annual,Imports of goods and services (% of GDP)
+BN.CAB.XOKA.GD.ZS,Current account balance (% of GDP),WDI,Economic,%,Annual,Current account balance (% of GDP)
+FP.CPI.TOTL.ZG,"Inflation, consumer prices (annual %)",WDI,Economic,%,Annual,"Inflation, consumer prices (annual %)"
+SL.UEM.TOTL.ZS,"Unemployment, total (% of total labor force)",WDI,Economic,%,Annual,"Unemployment, total (% of total labor force)"
+BX.KLT.DINV.WD.GD.ZS,"Foreign direct investment, net inflows (% of GDP)",WDI,Economic,%,Annual,"Foreign direct investment, net inflows (% of GDP)"
+GC.DOD.TOTL.GD.ZS,"Central government debt, total (% of GDP)",WDI,Economic,%,Annual,"Central government debt, total (% of GDP)"
+IT.NET.USER.ZS,Individuals using the Internet (% of population),WDI,Environmental,%,Annual,Individuals using the Internet (% of population)
+SE.ADT.LITR.ZS,"Literacy rate, adult total (% of people ages 15 and above)",WDI,Social,%,Annual,"Literacy rate, adult total (% of people ages 15 and above)"
+SH.XPD.CHEX.GD.ZS,Current health expenditure (% of GDP),WDI,Social,%,Annual,Current health expenditure (% of GDP)
+SP.DYN.LE00.IN,"Life expectancy at birth, total (years)",WDI,Social,Count,Annual,"Life expectancy at birth, total (years)"
+EN.ATM.CO2E.KT,CO2 emissions (kt),WDI,Environmental,Count,Annual,CO2 emissions (kt)
+EG.USE.ELEC.KH.PC,Electric power consumption (kWh per capita),WDI,Social,Count,Annual,Electric power consumption (kWh per capita)
+ER.H2O.FWTL.ZS,"Annual freshwater withdrawals, total (% of internal resources)",WDI,Environmental,%,Annual,"Annual freshwater withdrawals, total (% of internal resources)"
+AG.LND.FRST.ZS,Forest area (% of land area),WDI,Environmental,%,Annual,Forest area (% of land area)
+DT.ODA.ODAT.GN.ZS,Net ODA received (% of GNI),WDI,Economic,%,Annual,Net ODA received (% of GNI)
+FM.LBL.BMNY.GD.ZS,Broad money (% of GDP),WDI,Economic,%,Annual,Broad money (% of GDP)
+FR.INR.RINR,Real interest rate (%),WDI,Economic,Count,Annual,Real interest rate (%)
+PA.NUS.FCRF,"Official exchange rate (LCU per US$, period average)",WDI,Economic,Count,Annual,"Official exchange rate (LCU per US$, period average)"
+ST.INT.ARVL,"International tourism, number of arrivals",WDI,Economic,Count,Annual,"International tourism, number of arrivals"
+TG.VAL.TOTL.GD.ZS,Merchandise trade (% of GDP),WDI,Economic,%,Annual,Merchandise trade (% of GDP)
+TX.VAL.TECH.MF.ZS,High-technology exports (% of manufactured exports),WDI,Economic,%,Annual,High-technology exports (% of manufactured exports)
+VC.IHR.PSRC.P5,"Intentional homicides (per 100,000 people)",WDI,Economic,Count,Annual,"Intentional homicides (per 100,000 people)"
+SI.POV.GINI,Gini index,WDI,Social,Count,Annual,Gini index
+SL.TLF.TOTL.IN,"Labor force, total",WDI,Economic,Count,Annual,"Labor force, total"
+NV.AGR.TOTL.ZS,"Agriculture, forestry, and fishing, value added (% of GDP)",WDI,Economic,%,Annual,"Agriculture, forestry, and fishing, value added (% of GDP)"
+NV.IND.TOTL.ZS,"Industry (including construction), value added (% of GDP)",WDI,Economic,%,Annual,"Industry (including construction), value added (% of GDP)"
+NV.SRV.TOTL.ZS,"Services, value added (% of GDP)",WDI,Economic,%,Annual,"Services, value added (% of GDP)"

@@ -17,24 +17,10 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-memory"],
       "description": "Persistent knowledge graph across sessions — patterns, decisions, debugging notes"
-    },
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "description": "Chain-of-thought reasoning for complex pipeline debugging and architecture decisions"
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_PAT_HERE"
-      },
-      "description": "GitHub operations — PRs, issues, code search"
     }
   },
   "_comments": {
     "postgres": "Save PostgreSQL connection: login with (project, env, db) triple. Then use execute for read-only queries.",
-    "github_token": "Replace YOUR_GITHUB_PAT_HERE with a fine-grained PAT with repo scope.",
     "disable_unused": "Comment out servers you don't need to save context window space.",
     "context_warning": "Keep under 8 MCPs enabled to preserve context window. Disable unused ones."
   }

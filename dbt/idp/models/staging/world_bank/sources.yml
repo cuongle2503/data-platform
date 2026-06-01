@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: Raw data from MinIO Bronze bucket
+    tables:
+      - name: world_bank_indicators
+        description: World Bank indicator data ingested from API
+        meta:
+          external_location: "read_parquet('s3://bronze/world_bank/indicators/*.parquet')"

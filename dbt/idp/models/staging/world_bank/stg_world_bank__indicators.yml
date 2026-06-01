@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: stg_world_bank__indicators
+    description: Cleaned and deduplicated World Bank indicator data from Bronze layer
+    columns:
+      - name: country_code
+        description: ISO 2-letter country code
+        tests:
+          - not_null
+      - name: country_name
+        description: Country name
+        tests:
+          - not_null
+      - name: indicator_code
+        description: World Bank indicator code
+        tests:
+          - not_null
+      - name: indicator_name
+        description: Indicator name
+        tests:
+          - not_null
+      - name: year
+        description: Year of observation
+        tests:
+          - not_null
+      - name: value
+        description: Indicator value
+      - name: source
+        description: Source system (e.g., WDI)
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - country_code
+            - indicator_code
+            - year

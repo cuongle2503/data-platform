@@ -41,14 +41,14 @@
   },
   "permissions": {
     "allow": [
-      "uv *",
-      "python *",
-      "pytest *",
-      "ruff *",
-      "mypy *",
-      "dbt *",
-      "airflow *",
-      "git *"
+      "Uv *",
+      "Python *",
+      "Pytest *",
+      "Ruff *",
+      "Mypy *",
+      "Dbt *",
+      "Airflow *",
+      "Git *"
     ],
     "deny": []
   }

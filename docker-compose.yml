@@ -19,5 +19,25 @@ services:
       retries: 3
     restart: unless-stopped
 
+  # Phase 2: Serving Database (Gold)
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: idp-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-idp}
+      - POSTGRES_USER=${POSTGRES_USER:-idp_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U idp_user -d idp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   minio_data:
+  postgres_data:
