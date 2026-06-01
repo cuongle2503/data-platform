@@ -23,7 +23,7 @@
 **Priority**: CRITICAL  
 **Estimated Time**: 2 hours
 
-- [ ] Create project directory structure:
+- [x] Create project directory structure:
   ```
   data-platform/
   ├── src/
@@ -49,12 +49,12 @@
   └── docker/
   ```
 
-- [ ] Initialize `pyproject.toml` with uv:
+- [x] Initialize `pyproject.toml` with uv:
   ```bash
   uv init
   ```
 
-- [ ] Configure `pyproject.toml` with core dependencies:
+- [x] Configure `pyproject.toml` with core dependencies:
   - `fastapi[standard]>=0.115.0`
   - `uvicorn[standard]>=0.32.0`
   - `psycopg[binary]>=3.2.0`
@@ -69,7 +69,7 @@
   - `apache-airflow>=3.0.0`
   - `minio>=7.2.0`
 
-- [ ] Add dev dependencies:
+- [x] Add dev dependencies:
   - `pytest>=8.3.0`
   - `pytest-asyncio>=0.24.0`
   - `pytest-cov>=6.0.0`
@@ -77,9 +77,9 @@
   - `mypy>=1.13.0`
   - `pre-commit>=4.0.0`
 
-- [ ] Run `uv sync` to install all dependencies
+- [x] Run `uv sync` to install all dependencies
 
-- [ ] Create `.gitignore`:
+- [x] Create `.gitignore`:
   ```
   __pycache__/
   *.py[cod]
@@ -102,7 +102,7 @@
 **Priority**: HIGH  
 **Estimated Time**: 1 hour
 
-- [ ] Create `ruff.toml`:
+- [x] Create `ruff.toml`:
   ```toml
   line-length = 100
   target-version = "py311"
@@ -116,7 +116,7 @@
   indent-style = "space"
   ```
 
-- [ ] Create `mypy.ini`:
+- [x] Create `mypy.ini`:
   ```ini
   [mypy]
   python_version = 3.11
@@ -126,7 +126,7 @@
   disallow_untyped_defs = True
   ```
 
-- [ ] Create `.pre-commit-config.yaml`:
+- [x] Create `.pre-commit-config.yaml`:
   ```yaml
   repos:
     - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -137,9 +137,9 @@
         - id: ruff-format
   ```
 
-- [ ] Install pre-commit hooks: `pre-commit install`
+- [x] Install pre-commit hooks: `pre-commit install`
 
-- [ ] Test code quality tools:
+- [x] Test code quality tools:
   ```bash
   uv run ruff check .
   uv run ruff format .
@@ -151,7 +151,7 @@
 **Priority**: CRITICAL  
 **Estimated Time**: 30 minutes
 
-- [ ] Create `.env.example`:
+- [x] Create `.env.example`:
   ```bash
   # MinIO (Bronze Layer)
   MINIO_ENDPOINT=localhost:9000
@@ -188,18 +188,18 @@
   LOG_LEVEL=INFO
   ```
 
-- [ ] Copy to `.env`: `cp .env.example .env`
+- [x] Copy to `.env`: `cp .env.example .env`
 
-- [ ] Update `.env` with actual credentials (especially `GEMINI_API_KEY`)
+- [x] Update `.env` with actual credentials (especially `GEMINI_API_KEY`)
 
-- [ ] Create `src/common/config.py` for centralized config management using `pydantic-settings`
+- [x] Create `src/common/config.py` for centralized config management using `pydantic-settings`
 
 ### 0.4 Docker Infrastructure Setup
 
 **Priority**: CRITICAL  
 **Estimated Time**: 2 hours
 
-- [ ] Create `docker-compose.yml`:
+- [x] Create `docker-compose.yml`:
   ```yaml
   version: '3.8'
   
@@ -291,7 +291,7 @@
     postgres_data:
   ```
 
-- [ ] Create `scripts/init-db.sql`:
+- [x] Create `scripts/init-db.sql`:
   ```sql
   -- Enable pgvector extension
   CREATE EXTENSION IF NOT EXISTS vector;
@@ -306,23 +306,23 @@
   CREATE DATABASE airflow;
   ```
 
-- [ ] Start infrastructure services:
+- [x] Start infrastructure services:
   ```bash
   docker compose up -d
   ```
 
-- [ ] Verify services are running:
+- [x] Verify services are running:
   ```bash
   docker compose ps
   ```
 
-- [ ] Access MinIO console: http://localhost:9001 (minioadmin/minioadmin)
+- [x] Access MinIO console: http://localhost:9001 (minioadmin/minioadmin)
 
-- [ ] Create `bronze` bucket in MinIO via console or CLI
+- [x] Create `bronze` bucket in MinIO via console or CLI
 
-- [ ] Access Airflow UI: http://localhost:8080 (admin/admin)
+- [x] Access Airflow UI: http://localhost:8080 (admin/admin)
 
-- [ ] Verify PostgreSQL connection:
+- [x] Verify PostgreSQL connection:
   ```bash
   psql postgresql://idp_user:changeme@localhost:5432/idp -c "SELECT version();"
   ```
@@ -332,7 +332,7 @@
 **Priority**: HIGH  
 **Estimated Time**: 1.5 hours
 
-- [ ] Create `pytest.ini`:
+- [x] Create `pytest.ini`:
   ```ini
   [pytest]
   testpaths = tests
@@ -352,7 +352,7 @@
       slow: Slow tests
   ```
 
-- [ ] Create `tests/conftest.py` with shared fixtures:
+- [x] Create `tests/conftest.py` with shared fixtures:
   ```python
   import pytest
   from pathlib import Path
@@ -368,25 +368,25 @@
       # Add other env vars
   ```
 
-- [ ] Create sample test file `tests/unit/test_sample.py`:
+- [x] Create sample test file `tests/unit/test_sample.py`:
   ```python
   def test_sample():
       assert 1 + 1 == 2
   ```
 
-- [ ] Run tests to verify setup:
+- [x] Run tests to verify setup:
   ```bash
   uv run pytest
   ```
 
-- [ ] Verify coverage report generated in `htmlcov/`
+- [x] Verify coverage report generated in `htmlcov/`
 
 ### 0.6 Logging & Monitoring Setup
 
 **Priority**: MEDIUM  
 **Estimated Time**: 1 hour
 
-- [ ] Create `src/common/logging_config.py`:
+- [x] Create `src/common/logging_config.py`:
   ```python
   import logging
   import sys
@@ -406,11 +406,11 @@
       )
   ```
 
-- [ ] Create `logs/` directory: `mkdir -p logs`
+- [x] Create `logs/` directory: `mkdir -p logs`
 
-- [ ] Add `logs/*.log` to `.gitignore`
+- [x] Add `logs/*.log` to `.gitignore`
 
-- [ ] Create health check script `scripts/health_check.sh`:
+- [x] Create health check script `scripts/health_check.sh`:
   ```bash
   #!/bin/bash
   set -e
@@ -427,20 +427,20 @@
   echo "All services healthy!"
   ```
 
-- [ ] Make script executable: `chmod +x scripts/health_check.sh`
+- [x] Make script executable: `chmod +x scripts/health_check.sh`
 
-- [ ] Test health check: `./scripts/health_check.sh`
+- [x] Test health check: `./scripts/health_check.sh`
 
 ### 0.7 Documentation & Memory Setup
 
 **Priority**: MEDIUM  
 **Estimated Time**: 30 minutes
 
-- [ ] Create `README.md` with quick start guide
+- [x] Create `README.md` with quick start guide
 
-- [ ] Create `.claude/projects/-home-pc-my-projects-data-platform/memory/` directory
+- [x] Create `.claude/projects/-home-pc-my-projects-data-platform/memory/` directory
 
-- [ ] Create initial memory file for project context:
+- [x] Create initial memory file for project context:
   ```markdown
   ---
   name: project-architecture
@@ -457,32 +457,32 @@
   **How to apply:** Always consider layer boundaries when adding features.
   ```
 
-- [ ] Update `MEMORY.md` index
+- [x] Update `MEMORY.md` index
 
 ### 0.8 Verification & Smoke Tests
 
 **Priority**: CRITICAL  
 **Estimated Time**: 1 hour
 
-- [ ] Run full verification checklist:
-  - [ ] `uv sync` completes without errors
-  - [ ] `uv run ruff check .` passes
-  - [ ] `uv run ruff format .` runs successfully
-  - [ ] `uv run mypy .` passes (may have warnings initially)
-  - [ ] `uv run pytest` passes with >80% coverage
-  - [ ] All Docker services running: `docker compose ps`
-  - [ ] MinIO accessible and `bronze` bucket exists
-  - [ ] PostgreSQL accessible with schemas created
-  - [ ] Airflow UI accessible
-  - [ ] Health check script passes
+- [x] Run full verification checklist:
+  - [x] `uv sync` completes without errors
+  - [x] `uv run ruff check .` passes
+  - [x] `uv run ruff format .` runs successfully
+  - [x] `uv run mypy .` passes (may have warnings initially)
+  - [x] `uv run pytest` passes with >80% coverage
+  - [x] All Docker services running: `docker compose ps`
+  - [x] MinIO accessible and `bronze` bucket exists
+  - [x] PostgreSQL accessible with schemas created
+  - [x] Airflow UI accessible
+  - [x] Health check script passes
 
-- [ ] Create initial commit:
+- [x] Create initial commit:
   ```bash
   git add .
   git commit -m "chore: phase 0 setup — infrastructure and tooling"
   ```
 
-- [ ] Tag the phase:
+- [x] Tag the phase:
   ```bash
   git tag phase-0-complete
   ```
