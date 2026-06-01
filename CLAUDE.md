@@ -1,97 +1,50 @@
 # CLAUDE.md — Data Platform
 
-This file guides Claude Code when working in this repository.
+Intelligent Data Platform (IDP) for economic data — World Bank focus, single-node first, cloud-ready.
+
+## Architecture
+
+**5-layer Medallion**: Bronze (MinIO) → Silver/Gold (DuckDB+dbt) → Serving (PostgreSQL+pgvector) → Intelligence (FastAPI+Gemini) → Orchestration (Airflow)
+
+See `docs/README.md` for complete index.
+- `docs/architecture/` — System design, 5-layer specs, API design, tech stack
+- `docs/phases/` — Detailed step-by-step implementation plans (Start at PHASE-0-SETUP.md)
 
 ## Stack
 
-- **Runtime**: Python >=3.11
-- **Package manager**: uv (pyproject.toml)
-- **Linter / Formatter**: ruff (replaces flake8 + isort + black)
-- **Type checker**: mypy (strict mode)
-- **Test framework**: pytest + pytest-cov
-- **Database**: PostgreSQL (via SQLAlchemy / psycopg)
-- **Pipeline**: dbt (transformations) + Apache Airflow (orchestration)
+- **Python** >=3.11, **uv** (package manager)
+- **MinIO** (Bronze), **DuckDB+dbt** (transform), **PostgreSQL 16+pgvector** (Gold+embeddings)
+- **FastAPI** (API), **Gemini** (LLM/embeddings), **Airflow 3.0** (orchestration)
+- **ruff** (lint/format), **mypy** (types), **pytest** (tests)
 
 ## Commands
 
 ```bash
-# Install dependencies
-uv sync
-
-# Run tests
-uv run pytest
-
-# Lint
-uv run ruff check .
-
-# Format
-uv run ruff format .
-
-# Type check
-uv run mypy .
-
-# dbt
-cd dbt && dbt test && dbt run
-
-# Airflow (local dev)
-airflow standalone
+uv sync                    # Install deps
+uv run pytest              # Run tests
+uv run ruff check .        # Lint
+uv run ruff format .       # Format
+uv run mypy .              # Type check
+cd dbt && dbt run && dbt test  # Transform + test
+docker compose up -d       # Start services
 ```
 
 ## Code Style
 
-- PEP 8 via ruff — line length 100
-- Type annotations on every function signature (mypy strict)
-- `snake_case` for variables, functions, files
-- `PascalCase` for classes
-- `UPPER_SNAKE_CASE` for constants
-- Frozen dataclasses for DTOs / config objects
-- Context managers (`with`) for resource management
-- Avoid `print()` — use `logging` module or `loguru`
-
-## Project Structure
-
-```
-data-platform/
-├── pipelines/          # DAG definitions
-├── dbt/                # dbt models, tests, macros
-├── plugins/            # Airflow plugins / custom operators
-├── lib/                # Shared utilities
-├── tests/              # pytest tests
-├── pyproject.toml      # Project config + dependencies
-└── dags/               # Airflow DAG files (if synced to Airflow)
-```
+- PEP 8, line length 100, type annotations required (mypy strict)
+- `snake_case` (vars/funcs), `PascalCase` (classes), `UPPER_SNAKE_CASE` (constants)
+- Frozen dataclasses for DTOs, context managers for resources
+- Use `logging`, not `print()`
 
 ## Key Conventions
 
-### Data Pipeline
-- Each DAG should have `doc_md` and `owner` attributes
-- dbt models: file name = model name, use `ref()` instead of hardcoded table names
-- Sources declared in `dbt/sources.yml`, freshness test for every source
-- Idempotent pipelines: rerunning multiple times does not create duplicate data
+- **Idempotent pipelines**: safe to rerun, no duplicates
+- **Parameterized queries**: never string interpolation
+- **Secrets in env vars**: no hardcoded credentials
+- **dbt models**: file name = model name, use `ref()` not table names
+- **80% test coverage**: unit + integration + pipeline tests
 
-### Database
-- Parameterized queries — no string interpolation
-- Migration files (dbt snapshots or Alembic) for schema changes
-- Don't hardcode connection strings — use env vars
+## Project Status (2026-06-01)
 
-### Testing
-- Unit tests for transformers, validators, utility functions
-- Integration tests for database queries and dbt models (dbt test)
-- Airflow DAG integrity test: `airflow dags test <dag_id>`
-
-## Skills
-
-Use the following skills when working on related tasks:
-
-| Task | Skill |
-|------|-------|
-| `**/*.py` (write/review/refactor Python) | `python-patterns` |
-| `tests/**`, write tests, setup pytest | `python-testing` |
-| New features, bug fixes, refactoring | `tdd-workflow` |
-| Before PR, after feature complete | `verification-loop` |
-| `**/dags/**`, `**/dbt/**`, pipeline code | `data-pipeline` |
-| Schema changes, migrations, Alembic | `database-migrations` |
-| API endpoints, REST design | `api-design` |
-| Code quality review, naming conventions | `coding-standards` |
-
-Skills are auto-discovered from `.claude/skills/`. Claude will activate them automatically based on context. You can also invoke them manually: `/python-patterns`, `/tdd-workflow`, etc.
+**Current**: Architecture docs complete, no code yet
+**Next**: Implement Layer 1 (World Bank ingestion to MinIO Bronze)

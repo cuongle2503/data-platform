@@ -1,0 +1,1 @@
+- [Project Architecture](project-architecture.md) — IDP 5-layer Medallion architecture overview

@@ -1,10 +1,13 @@
 {
   "mcpServers": {
-    "a2db": {
+    "postgres": {
       "command": "npx",
-      "args": ["-y", "@anthropic/a2db-mcp"],
-      "description": "PostgreSQL database queries — data exploration, schema inspection. Use 'login' to save connection, then 'execute' for read-only queries."
-    },
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-postgres",
+          "postgresql://postgres:postgres@localhost:5433/demo_mcp"
+        ]
+      },
     "context7": {
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"],
@@ -30,7 +33,7 @@
     }
   },
   "_comments": {
-    "a2db_usage": "Save PostgreSQL connection: a2db login with (project, env, db) triple. Then use execute for read-only queries.",
+    "postgres": "Save PostgreSQL connection: login with (project, env, db) triple. Then use execute for read-only queries.",
     "github_token": "Replace YOUR_GITHUB_PAT_HERE with a fine-grained PAT with repo scope.",
     "disable_unused": "Comment out servers you don't need to save context window space.",
     "context_warning": "Keep under 8 MCPs enabled to preserve context window. Disable unused ones."
