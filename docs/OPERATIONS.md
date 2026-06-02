@@ -1,6 +1,70 @@
 # IDP Operations Guide
 
-This document outlines standard operating procedures for the Intelligent Data Platform (IDP) including backup, restore, scaling, and troubleshooting.
+This document outlines standard operating procedures for the Intelligent Data Platform (IDP) including deployment, backup, restore, monitoring, and troubleshooting.
+
+---
+
+## 0. Deployment
+
+### Prerequisites
+
+- Docker & Docker Compose installed
+- Python 3.11+ with `uv` package manager
+- `.env` file configured (copy from `.env.example`)
+
+### Environment Variables
+
+Key environment variables required in `.env`:
+
+```bash
+# PostgreSQL
+POSTGRES_DB=idp
+POSTGRES_USER=idp_user
+POSTGRES_PASSWORD=changeme
+
+# MinIO
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+
+# Airflow
+AIRFLOW_USER=admin
+AIRFLOW_PASSWORD=admin
+AIRFLOW_FERNET_KEY=<generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())">
+AIRFLOW_SECRET_KEY=changeme
+
+# API
+GEMINI_API_KEY=<your-gemini-api-key>
+
+# Proxy (if required)
+HTTP_PROXY=http://proxy.example.com:8080
+HTTPS_PROXY=http://proxy.example.com:8080
+NO_PROXY=localhost,127.0.0.1,minio,postgres
+```
+
+### First-Time Deployment
+
+```bash
+# 1. Clone and setup
+git clone <repo-url>
+cd data-platform
+cp .env.example .env
+# Edit .env with your credentials
+
+# 2. Install dependencies
+uv sync
+
+# 3. Start all services
+docker compose up -d
+
+# 4. Verify services are healthy
+docker compose ps
+
+# 5. Access Airflow UI and trigger pipeline
+# Open http://localhost:8080 (admin/admin)
+# Enable and trigger `world_bank_pipeline` DAG
+```
+
+---
 
 ## 1. Pipeline Execution
 

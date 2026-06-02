@@ -140,6 +140,5 @@ class HttpClient:
                 await asyncio.sleep(backoff)
 
         raise IngestionError(
-            f"HTTP request failed after {self.max_retries} retries. "
-            f"Last error: {last_error!s}"
+            f"HTTP request failed after {self.max_retries} retries. Last error: {last_error!s}"
         ) from last_error

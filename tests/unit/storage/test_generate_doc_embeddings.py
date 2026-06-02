@@ -189,67 +189,62 @@ def test_generate_doc_embeddings_handles_read_error():
     # Assert
     assert result == 0  # Should handle error gracefully
 
+
 def test_process_chunk_batch_success():
     conn = MagicMock()
     cur = MagicMock()
     conn.cursor.return_value = cur
     client = MagicMock()
     client.generate_embeddings_batch.return_value = [[0.1, 0.2], [0.3, 0.4]]
-    
-    created = _process_chunk_batch(
-        conn, client, 
-        ["text1", "text2"], 
-        ["ref1", "ref2"]
-    )
-    
+
+    created = _process_chunk_batch(conn, client, ["text1", "text2"], ["ref1", "ref2"])
+
     assert created == 2
     assert cur.execute.call_count == 2
     conn.commit.assert_called_once()
+
 
 def test_process_chunk_batch_api_failure():
     conn = MagicMock()
     client = MagicMock()
     client.generate_embeddings_batch.side_effect = Exception("API Error")
-    
-    created = _process_chunk_batch(
-        conn, client, 
-        ["text1"], ["ref1"]
-    )
-    
+
+    created = _process_chunk_batch(conn, client, ["text1"], ["ref1"])
+
     assert created == 0
+
 
 def test_process_chunk_batch_db_failure():
     conn = MagicMock()
     cur = MagicMock()
     conn.cursor.return_value = cur
     cur.execute.side_effect = Exception("DB Error")
-    
+
     client = MagicMock()
     client.generate_embeddings_batch.return_value = [[0.1, 0.2]]
-    
-    created = _process_chunk_batch(
-        conn, client, 
-        ["text1"], ["ref1"]
-    )
-    
+
+    created = _process_chunk_batch(conn, client, ["text1"], ["ref1"])
+
     assert created == 0
     conn.commit.assert_called_once()
 
-@patch('os.environ.get')
-@patch('idp.storage.generate_doc_embeddings.GeminiEmbeddingsClient')
-@patch('idp.storage.generate_doc_embeddings.MinioClient')
-@patch('idp.storage.generate_doc_embeddings.psycopg2.connect')
-@patch('idp.storage.generate_doc_embeddings.generate_doc_embeddings')
+
+@patch("os.environ.get")
+@patch("idp.storage.generate_doc_embeddings.GeminiEmbeddingsClient")
+@patch("idp.storage.generate_doc_embeddings.MinioClient")
+@patch("idp.storage.generate_doc_embeddings.psycopg2.connect")
+@patch("idp.storage.generate_doc_embeddings.generate_doc_embeddings")
 def test_run_success(mock_gen, mock_connect, mock_minio, mock_client, mock_env):
     mock_env.return_value = "postgres://url"
-    
+
     run()
-    
+
     mock_connect.assert_called_once()
     mock_gen.assert_called_once()
 
-@patch('os.environ.get')
+
+@patch("os.environ.get")
 def test_run_no_db_url(mock_env):
     mock_env.return_value = None
-    
-    run() # Should return early and not raise
+
+    run()  # Should return early and not raise

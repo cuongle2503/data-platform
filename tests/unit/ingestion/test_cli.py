@@ -17,9 +17,7 @@ def test_create_parser():
     assert isinstance(parser, argparse.ArgumentParser)
 
     # Test parse standard args
-    args = parser.parse_args(
-        ["ingest-indicators", "--countries", "VN,CN", "--start-year", "2020"]
-    )
+    args = parser.parse_args(["ingest-indicators", "--countries", "VN,CN", "--start-year", "2020"])
     assert args.command == "ingest-indicators"
     assert args.countries == "VN,CN"
     assert args.start_year == 2020
@@ -86,6 +84,7 @@ async def test_main_no_command():
     assert result == 1
     mock_parser.print_help.assert_called_once()
 
+
 @pytest.mark.asyncio
 async def test_main_ingest_docs_metadata():
     """Test main function with ingest-docs-metadata command."""
@@ -124,6 +123,7 @@ async def test_main_ingest_docs_metadata():
     )
     mock_minio.upload_dataframe.assert_called_once()
 
+
 @pytest.mark.asyncio
 async def test_main_ingest_docs_text():
     """Test main function with ingest-docs-text command."""
@@ -149,7 +149,9 @@ async def test_main_ingest_docs_text():
                     mock_minio.upload_dataframe.return_value = "bronze/test.parquet"
                     mock_minio_cls.return_value = mock_minio
 
-                    result = await main(["ingest-docs-text", "--doc-id", "D1", "--txt-url", "http://test"])
+                    result = await main(
+                        ["ingest-docs-text", "--doc-id", "D1", "--txt-url", "http://test"]
+                    )
 
     assert result == 0
     mock_fetch.assert_called_once()

@@ -171,9 +171,7 @@ class TestExportGoldToPostgres:
 
         # Verify schema creation
         create_schema_calls = [
-            call
-            for call in mock_cursor.execute.call_args_list
-            if "CREATE SCHEMA" in str(call)
+            call for call in mock_cursor.execute.call_args_list if "CREATE SCHEMA" in str(call)
         ]
         assert len(create_schema_calls) >= 1
 
@@ -276,9 +274,7 @@ class TestExportGoldToPostgres:
 
         # Check schema creation uses custom name
         create_schema_calls = [
-            call
-            for call in mock_cursor.execute.call_args_list
-            if "CREATE SCHEMA" in str(call)
+            call for call in mock_cursor.execute.call_args_list if "CREATE SCHEMA" in str(call)
         ]
         for call_args in create_schema_calls:
             assert "custom_gold" in str(call_args)

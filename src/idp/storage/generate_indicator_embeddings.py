@@ -8,6 +8,7 @@ from idp.storage.embeddings_client import GeminiEmbeddingsClient
 
 logger = logging.getLogger(__name__)
 
+
 def build_indicator_text(row: dict[str, Any]) -> str:
     """Build a rich text representation for embedding."""
     parts = [
@@ -21,18 +22,17 @@ def build_indicator_text(row: dict[str, Any]) -> str:
 
     return "\n".join(parts)
 
+
 def get_existing_ref_ids(cursor: Any, ref_type: str) -> set[str]:
     """Get set of already-embedded ref_ids for idempotency."""
     cursor.execute(
-        "SELECT ref_id FROM embeddings.economic_embeddings WHERE ref_type = %s",
-        (ref_type,)
+        "SELECT ref_id FROM embeddings.economic_embeddings WHERE ref_type = %s", (ref_type,)
     )
     return {row[0] for row in cursor.fetchall()}
 
+
 def generate_indicator_embeddings(
-    conn: Any,
-    client: GeminiEmbeddingsClient,
-    batch_size: int = 5
+    conn: Any, client: GeminiEmbeddingsClient, batch_size: int = 5
 ) -> int:
     """
     Generate embeddings for all indicators, idempotently.
@@ -80,6 +80,7 @@ def generate_indicator_embeddings(
 
     return created
 
+
 def _process_batch(
     conn: Any,
     client: GeminiEmbeddingsClient,
@@ -98,12 +99,15 @@ def _process_batch(
     created = 0
     for ref_id, embedding in zip(ref_ids, embeddings):
         try:
-            cur.execute("""
+            cur.execute(
+                """
                 INSERT INTO embeddings.economic_embeddings (ref_type, ref_id, embedding, metadata)
                 VALUES (%s, %s, %s, %s)
                 ON CONFLICT (ref_type, ref_id) DO UPDATE
                 SET embedding = EXCLUDED.embedding, metadata = EXCLUDED.metadata
-            """, (ref_type, ref_id, embedding, '{"source": "gemini-text-embedding-004"}'))
+            """,
+                (ref_type, ref_id, embedding, '{"source": "gemini-text-embedding-004"}'),
+            )
             created += 1
         except Exception as e:
             logger.error(f"Failed to insert embedding for {ref_id}: {e}")
@@ -111,6 +115,7 @@ def _process_batch(
     conn.commit()
     logger.info(f"Inserted {created} embeddings")
     return created
+
 
 def run() -> None:
     """Main entry point for the embeddings generation pipeline."""

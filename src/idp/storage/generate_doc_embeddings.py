@@ -52,8 +52,7 @@ def get_existing_chunk_ref_ids(cursor: Any) -> set[str]:
         ref_type='world_bank_report'.
     """
     cursor.execute(
-        "SELECT ref_id FROM embeddings.economic_embeddings "
-        "WHERE ref_type = 'world_bank_report'"
+        "SELECT ref_id FROM embeddings.economic_embeddings WHERE ref_type = 'world_bank_report'"
     )
     return {row[0] for row in cursor.fetchall()}
 
@@ -114,9 +113,7 @@ def generate_doc_embeddings(
             batch_refs.append(chunk_id)
 
             if len(batch_texts) >= batch_size:
-                created += _process_chunk_batch(
-                    conn, client, batch_texts, batch_refs
-                )
+                created += _process_chunk_batch(conn, client, batch_texts, batch_refs)
                 batch_texts = []
                 batch_refs = []
 

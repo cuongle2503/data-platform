@@ -1,7 +1,18 @@
+import os
+import sys
 from datetime import datetime, timedelta
 
 from airflow.decorators import dag, task
 from airflow.operators.bash import BashOperator
+
+# Add src to path so we can import idp modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
+
+from idp.orchestration.callbacks import (
+    dag_failure_alert,
+    dag_success_alert,
+    task_failure_alert,
+)
 
 default_args = {
     "owner": "data_platform",
@@ -9,6 +20,7 @@ default_args = {
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
     "execution_timeout": timedelta(hours=1),
+    "on_failure_callback": task_failure_alert,
 }
 
 
@@ -20,6 +32,8 @@ default_args = {
     catchup=False,
     max_active_runs=1,
     tags=["world_bank", "idp"],
+    on_success_callback=dag_success_alert,
+    on_failure_callback=dag_failure_alert,
     doc_md=__doc__,
 )
 def world_bank_pipeline():
@@ -33,9 +47,7 @@ def world_bank_pipeline():
         import os
         import sys
 
-        sys.path.insert(
-            0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src"))
-        )
+        sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
         from idp.ingestion.world_bank.pipeline import WorldBankIndicatorsPipeline
 
@@ -63,9 +75,7 @@ def world_bank_pipeline():
         import os
         import sys
 
-        sys.path.insert(
-            0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src"))
-        )
+        sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
         from idp.transformation.exporter import export_gold_to_postgres
 
@@ -81,9 +91,7 @@ def world_bank_pipeline():
         import os
         import sys
 
-        sys.path.insert(
-            0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src"))
-        )
+        sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
         from idp.storage.generate_indicator_embeddings import run as run_embeddings
 

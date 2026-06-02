@@ -7,6 +7,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 
 logger = logging.getLogger(__name__)
 
+
 class GeminiEmbeddingsClient:
     """Client for generating text embeddings using Google's Gemini API."""
 
@@ -24,7 +25,7 @@ class GeminiEmbeddingsClient:
         retry=retry_if_exception_type((ResourceExhausted, InternalServerError)),
         before_sleep=lambda retry_state: logger.warning(
             f"Retrying embedding generation due to API error. Attempt {retry_state.attempt_number}"
-        )
+        ),
     )
     def generate_embedding(self, text: str, task_type: str = "retrieval_document") -> list[float]:
         """
@@ -37,22 +38,16 @@ class GeminiEmbeddingsClient:
         Returns:
             List of floats representing the embedding vector
         """
-        result = genai.embed_content(
-            model=self.model_name,
-            content=text,
-            task_type=task_type
-        )
+        result = genai.embed_content(model=self.model_name, content=text, task_type=task_type)
         return result["embedding"]
 
     @retry(
         wait=wait_exponential(multiplier=1, min=2, max=10),
         stop=stop_after_attempt(5),
-        retry=retry_if_exception_type((ResourceExhausted, InternalServerError))
+        retry=retry_if_exception_type((ResourceExhausted, InternalServerError)),
     )
     def generate_embeddings_batch(
-        self,
-        texts: list[str],
-        task_type: str = "retrieval_document"
+        self, texts: list[str], task_type: str = "retrieval_document"
     ) -> list[list[float]]:
         """
         Generate embeddings for a batch of strings.
@@ -67,11 +62,7 @@ class GeminiEmbeddingsClient:
         if not texts:
             return []
 
-        result = genai.embed_content(
-            model=self.model_name,
-            content=texts,
-            task_type=task_type
-        )
+        result = genai.embed_content(model=self.model_name, content=texts, task_type=task_type)
         embeddings = result["embedding"]
         # API returns list[list[float]] for batch, list[float] for single
         if texts and isinstance(embeddings[0], (int, float)):

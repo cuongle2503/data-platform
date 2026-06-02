@@ -41,14 +41,10 @@ async def test_fetch_indicator_data_basic():
     ]
     mock_http.get.return_value = mock_response
 
-    pipeline = WorldBankIndicatorsPipeline(
-        settings=mock_settings, http_client=mock_http
-    )
+    pipeline = WorldBankIndicatorsPipeline(settings=mock_settings, http_client=mock_http)
 
     # Act
-    result = await pipeline.fetch_indicator(
-        country_code="VN", indicator_code="NY.GDP.MKTP.CD"
-    )
+    result = await pipeline.fetch_indicator(country_code="VN", indicator_code="NY.GDP.MKTP.CD")
 
     # Assert
     assert len(result) == 1
@@ -67,24 +63,32 @@ async def test_fetch_indicator_with_year_range():
     mock_response = [
         {"page": 1, "pages": 1, "per_page": 1000, "total": 2},
         [
-            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-             "indicator": {"id": "SP.POP.TOTL", "value": "Population, total"},
-             "date": "2022", "value": 99.0},
-            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-             "indicator": {"id": "SP.POP.TOTL", "value": "Population, total"},
-             "date": "2023", "value": 100.0},
+            {
+                "countryiso3code": "VNM",
+                "country": {"value": "Vietnam"},
+                "indicator": {"id": "SP.POP.TOTL", "value": "Population, total"},
+                "date": "2022",
+                "value": 99.0,
+            },
+            {
+                "countryiso3code": "VNM",
+                "country": {"value": "Vietnam"},
+                "indicator": {"id": "SP.POP.TOTL", "value": "Population, total"},
+                "date": "2023",
+                "value": 100.0,
+            },
         ],
     ]
     mock_http.get.return_value = mock_response
 
-    pipeline = WorldBankIndicatorsPipeline(
-        settings=mock_settings, http_client=mock_http
-    )
+    pipeline = WorldBankIndicatorsPipeline(settings=mock_settings, http_client=mock_http)
 
     # Act
     result = await pipeline.fetch_indicator(
-        country_code="VN", indicator_code="SP.POP.TOTL",
-        start_year=2022, end_year=2023,
+        country_code="VN",
+        indicator_code="SP.POP.TOTL",
+        start_year=2022,
+        end_year=2023,
     )
 
     # Assert
@@ -101,21 +105,21 @@ async def test_fetch_indicator_handles_null_value():
     mock_response = [
         {"page": 1, "pages": 1, "per_page": 1000, "total": 1},
         [
-            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-             "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
-             "date": "2023", "value": None},
+            {
+                "countryiso3code": "VNM",
+                "country": {"value": "Vietnam"},
+                "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+                "date": "2023",
+                "value": None,
+            },
         ],
     ]
     mock_http.get.return_value = mock_response
 
-    pipeline = WorldBankIndicatorsPipeline(
-        settings=mock_settings, http_client=mock_http
-    )
+    pipeline = WorldBankIndicatorsPipeline(settings=mock_settings, http_client=mock_http)
 
     # Act
-    result = await pipeline.fetch_indicator(
-        country_code="VN", indicator_code="NY.GDP.MKTP.CD"
-    )
+    result = await pipeline.fetch_indicator(country_code="VN", indicator_code="NY.GDP.MKTP.CD")
 
     # Assert
     assert len(result) == 1
@@ -132,29 +136,33 @@ async def test_fetch_indicator_handles_pagination():
         [
             {"page": 1, "pages": 2, "per_page": 100, "total": 200},
             [
-                {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-                 "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
-                 "date": "2023", "value": 100.0},
+                {
+                    "countryiso3code": "VNM",
+                    "country": {"value": "Vietnam"},
+                    "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+                    "date": "2023",
+                    "value": 100.0,
+                },
             ],
         ],
         [
             {"page": 2, "pages": 2, "per_page": 100, "total": 200},
             [
-                {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-                 "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
-                 "date": "2022", "value": 95.0},
+                {
+                    "countryiso3code": "VNM",
+                    "country": {"value": "Vietnam"},
+                    "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+                    "date": "2022",
+                    "value": 95.0,
+                },
             ],
         ],
     ]
 
-    pipeline = WorldBankIndicatorsPipeline(
-        settings=mock_settings, http_client=mock_http
-    )
+    pipeline = WorldBankIndicatorsPipeline(settings=mock_settings, http_client=mock_http)
 
     # Act
-    result = await pipeline.fetch_indicator(
-        country_code="VN", indicator_code="NY.GDP.MKTP.CD"
-    )
+    result = await pipeline.fetch_indicator(country_code="VN", indicator_code="NY.GDP.MKTP.CD")
 
     # Assert
     assert len(result) == 2
@@ -168,14 +176,10 @@ async def test_fetch_indicator_returns_empty_on_error():
     mock_http = AsyncMock()
     mock_http.get.side_effect = Exception("API error")
 
-    pipeline = WorldBankIndicatorsPipeline(
-        settings=mock_settings, http_client=mock_http
-    )
+    pipeline = WorldBankIndicatorsPipeline(settings=mock_settings, http_client=mock_http)
 
     # Act
-    result = await pipeline.fetch_indicator(
-        country_code="VN", indicator_code="NY.GDP.MKTP.CD"
-    )
+    result = await pipeline.fetch_indicator(country_code="VN", indicator_code="NY.GDP.MKTP.CD")
 
     # Assert
     assert result == []
@@ -226,39 +230,53 @@ def test_normalize_record_none_value():
     # Assert
     assert result["value"] is None
 
+
 @pytest.mark.asyncio
 async def test_pipeline_run(mock_settings: Settings):
     """Test full pipeline run for indicators."""
     mock_http = AsyncMock()
     pipeline = WorldBankIndicatorsPipeline(settings=mock_settings, http_client=mock_http)
-    
-    with patch('idp.ingestion.world_bank.pipeline.fetch_multiple_indicators', new_callable=AsyncMock) as mock_fetch:
+
+    with patch(
+        "idp.ingestion.world_bank.pipeline.fetch_multiple_indicators", new_callable=AsyncMock
+    ) as mock_fetch:
         mock_fetch.return_value = [
-            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-             "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
-             "date": "2023", "value": 100.0}
+            {
+                "countryiso3code": "VNM",
+                "country": {"value": "Vietnam"},
+                "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+                "date": "2023",
+                "value": 100.0,
+            }
         ]
-        
+
         result = await pipeline.run(countries=["VN"], indicators=["NY.GDP.MKTP.CD"])
-        
+
         assert len(result) == 1
         assert result[0]["country_code"] == "VNM"
         mock_fetch.assert_called()
+
 
 @pytest.mark.asyncio
 async def test_pipeline_run_multiple_countries(mock_settings: Settings):
     """Test pipeline run across multiple countries."""
     mock_http = AsyncMock()
     pipeline = WorldBankIndicatorsPipeline(settings=mock_settings, http_client=mock_http)
-    
-    with patch('idp.ingestion.world_bank.pipeline.fetch_multiple_indicators', new_callable=AsyncMock) as mock_fetch:
+
+    with patch(
+        "idp.ingestion.world_bank.pipeline.fetch_multiple_indicators", new_callable=AsyncMock
+    ) as mock_fetch:
         mock_fetch.return_value = [
-            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-             "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
-             "date": "2023", "value": 100.0}
+            {
+                "countryiso3code": "VNM",
+                "country": {"value": "Vietnam"},
+                "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+                "date": "2023",
+                "value": 100.0,
+            }
         ]
-        
+
         result = await pipeline.run(countries=["VN", "CN"])
-        
+
         assert len(result) == 2
         assert mock_fetch.call_count == 2

@@ -111,15 +111,17 @@ def make_chunk_records(
     records = []
     for chunk_index, chunk_text in enumerate(chunks):
         chunk_id = f"{doc_id}_{chunk_index:04d}"
-        records.append({
-            "chunk_id": chunk_id,
-            "doc_id": doc_id,
-            "chunk_index": chunk_index,
-            "total_chunks": len(chunks),
-            "text": chunk_text,
-            "char_count": len(chunk_text),
-            "source": source,
-        })
+        records.append(
+            {
+                "chunk_id": chunk_id,
+                "doc_id": doc_id,
+                "chunk_index": chunk_index,
+                "total_chunks": len(chunks),
+                "text": chunk_text,
+                "char_count": len(chunk_text),
+                "source": source,
+            }
+        )
     return records
 
 
@@ -154,9 +156,7 @@ async def fetch_and_chunk_doc(
     chunks = chunk_text(text, chunk_size=chunk_size, overlap=overlap)
     records = make_chunk_records(doc_id=doc_id, chunks=chunks)
 
-    logger.info(
-        f"Chunked doc {doc_id}: {len(chunks)} chunks from {len(text)} chars"
-    )
+    logger.info(f"Chunked doc {doc_id}: {len(chunks)} chunks from {len(text)} chars")
     return records
 
 

@@ -63,16 +63,33 @@ Once the pipeline completes, the data is available for querying:
 - Airflow UI: http://localhost:8080 (admin / admin)
 - PostgreSQL: `localhost:5433` (idp_user / changeme)
 
+## Testing
+
+### Unit & Integration Tests
+
+```bash
+uv run pytest                    # Run all tests
+uv run pytest -m "not slow"      # Fast tests only
+uv run pytest -m "unit"          # Unit tests
+uv run pytest -m "integration"   # Integration tests
+uv run pytest tests/e2e_pipeline.py  # E2E pipeline workflow test
+```
+
+### Code Quality
+
+```bash
+uv run ruff check .              # Lint
+uv run ruff format .             # Format
+uv run mypy .                    # Type check
+```
+
+## Monitoring & Alerting
+
+The `world_bank_pipeline` DAG includes failure/success callbacks (`src/idp/orchestration/callbacks.py`).
+Add email/Slack integrations by editing the TODO sections in the callback functions.
+
+Airflow UI: http://localhost:8080 (admin / admin)
+
 ## Operations
 
 See [docs/OPERATIONS.md](docs/OPERATIONS.md) for backup, restore, scaling, and troubleshooting instructions.
-
-## Development Commands
-
-```bash
-uv run pytest              # Run tests
-uv run pytest -m "not slow" # Run fast tests only
-uv run ruff check .        # Lint code
-uv run ruff format .       # Format code
-uv run mypy .              # Type check
-```
