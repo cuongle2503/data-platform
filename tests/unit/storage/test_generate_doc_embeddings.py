@@ -1,9 +1,8 @@
 """Unit tests for document embeddings generation."""
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import polars as pl
-import pytest
 
 from idp.storage.generate_doc_embeddings import (
     _process_chunk_batch,
@@ -229,22 +228,22 @@ def test_process_chunk_batch_db_failure():
     conn.commit.assert_called_once()
 
 
-@patch("os.environ.get")
+@patch("idp.common.config.get_settings")
 @patch("idp.storage.generate_doc_embeddings.GeminiEmbeddingsClient")
 @patch("idp.storage.generate_doc_embeddings.MinioClient")
 @patch("idp.storage.generate_doc_embeddings.psycopg2.connect")
 @patch("idp.storage.generate_doc_embeddings.generate_doc_embeddings")
-def test_run_success(mock_gen, mock_connect, mock_minio, mock_client, mock_env):
-    mock_env.return_value = "postgres://url"
+def test_run_success(mock_gen, mock_connect, mock_minio, mock_client, mock_settings):
+    mock_pg = MagicMock()
+    mock_pg.database_url = "postgres://url"
+    mock_minio_cfg = MagicMock()
+    mock_minio_cfg.endpoint = "localhost:9000"
+    mock_minio_cfg.access_key = "minioadmin"
+    mock_minio_cfg.secret_key = "minioadmin"
+    mock_settings.return_value.postgres = mock_pg
+    mock_settings.return_value.minio = mock_minio_cfg
 
     run()
 
     mock_connect.assert_called_once()
     mock_gen.assert_called_once()
-
-
-@patch("os.environ.get")
-def test_run_no_db_url(mock_env):
-    mock_env.return_value = None
-
-    run()  # Should return early and not raise

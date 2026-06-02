@@ -2,7 +2,6 @@
 
 import logging
 import re
-from typing import Union
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
@@ -141,9 +140,10 @@ def create_router(repo: StorageRepository, rag_client: RAGClient) -> APIRouter:
             logger.info("WebSocket client disconnected")
         except Exception as exc:
             logger.exception("WebSocket error: %s", exc)
-            try:
+            import contextlib
+
+            with contextlib.suppress(Exception):
+                # Client may have already disconnected
                 await websocket.send_json({"error": str(exc)})
-            except Exception:
-                pass  # Client may have already disconnected
 
     return router

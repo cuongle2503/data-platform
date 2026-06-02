@@ -1,9 +1,9 @@
 """Integration tests for the World Bank pipeline DAG tasks."""
 
-import sys
-import os
-from unittest.mock import AsyncMock, MagicMock, patch
 import asyncio
+import os
+import sys
+from unittest.mock import AsyncMock, patch
 
 import pytest
 

@@ -1,6 +1,5 @@
 """Tests for World Bank documents metadata pipeline."""
 
-from unittest.mock import AsyncMock
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -213,12 +212,12 @@ async def test_docs_pipeline_run(mock_settings: Settings):
     with patch.object(pipeline, "fetch_metadata", new_callable=AsyncMock) as mock_fetch:
         mock_fetch.return_value = [{"doc_id": "1", "title": "Test 1"}]
 
-        result = await pipeline.run(countries=["VN"], max_pages_per_country=1)
+        result = await pipeline.run(countries=["VNM"], max_pages_per_country=1)
 
         assert len(result) == 1
         assert result[0]["doc_id"] == "1"
         mock_fetch.assert_called_once_with(
-            country_code="VN",
+            country_code="VNM",
             topic=None,
             start_date=None,
             end_date=None,
@@ -235,7 +234,7 @@ async def test_docs_pipeline_run_multiple_countries(mock_settings: Settings):
     with patch.object(pipeline, "fetch_metadata", new_callable=AsyncMock) as mock_fetch:
         mock_fetch.return_value = [{"doc_id": "1", "title": "Test 1"}]
 
-        result = await pipeline.run(countries=["VN", "CN"])
+        result = await pipeline.run(countries=["VNM", "CHN"])
 
         assert len(result) == 2
         assert mock_fetch.call_count == 2

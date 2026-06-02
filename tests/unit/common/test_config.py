@@ -64,7 +64,7 @@ def test_countries_list_not_empty():
     assert len(COUNTRIES) > 0
     country_codes = [c["code"] for c in COUNTRIES]
     assert "VNM" in country_codes  # Vietnam
-    assert "CN" in country_codes  # China
+    assert "CHN" in country_codes  # China
 
 
 def test_countries_have_required_fields():
@@ -108,7 +108,7 @@ def test_get_wb_countries_default():
 def test_get_wb_countries_filtered():
     """Test get_wb_countries with code filtering."""
     # Act
-    result = get_wb_countries(["VN", "CN"])
+    result = get_wb_countries(["VNM", "CHN"])
 
     # Assert
     assert len(result) == 2

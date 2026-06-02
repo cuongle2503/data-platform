@@ -1,7 +1,6 @@
 """Timeseries REST router."""
 
 import logging
-from typing import Any
 
 from fastapi import APIRouter, Query, status
 from fastapi.responses import JSONResponse
@@ -22,8 +21,8 @@ def create_router(repo: StorageRepository) -> APIRouter:
         country_code: str = Query(
             ..., min_length=3, max_length=3, description="3-letter country code"
         ),
-        indicator_codes: list[str] = Query(..., min_items=1, description="List of indicator codes"),
-        years: list[int] | None = Query(None, description="Filter by years"),
+        indicator_codes: list[str] = Query(..., min_items=1, description="List of indicator codes"),  # noqa: B008
+        years: list[int] | None = Query(None, description="Filter by years"),  # noqa: B008
     ) -> JSONResponse:
         """Get timeseries data for a country and set of indicators."""
         try:

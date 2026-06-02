@@ -35,15 +35,3 @@ def setup_logging(log_level: str = "INFO", log_file: str = "logs/app.log") -> No
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
-
-
-def get_logger(name: str) -> logging.Logger:
-    """Get a logger instance for a module.
-
-    Args:
-        name: Logger name (typically __name__)
-
-    Returns:
-        Logger instance
-    """
-    return logging.getLogger(name)

@@ -118,14 +118,16 @@ async def test_rate_limiting_delays_requests():
     mock_response.json.return_value = {"data": "test"}
 
     # Act
-    with patch.object(client._client, "get", new_callable=AsyncMock) as mock_get:
-        with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
-            mock_get.return_value = mock_response
+    with (
+        patch.object(client._client, "get", new_callable=AsyncMock) as mock_get,
+        patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep,
+    ):
+        mock_get.return_value = mock_response
 
-            # Make 3 requests
-            await client.get("/endpoint1")
-            await client.get("/endpoint2")
-            await client.get("/endpoint3")
+        # Make 3 requests
+        await client.get("/endpoint1")
+        await client.get("/endpoint2")
+        await client.get("/endpoint3")
 
     # Assert - should have 2 sleep calls (not before first request)
     assert mock_sleep.call_count == 2

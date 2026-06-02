@@ -30,7 +30,7 @@ def build_context(indicators: list[dict], timeseries_data: list[dict]) -> str:
             available_cols = [c for c in cols if c in first_row]
 
             # Add any extra columns
-            for c in first_row.keys():
+            for c in first_row:
                 if c not in available_cols:
                     available_cols.append(c)
 

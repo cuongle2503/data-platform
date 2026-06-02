@@ -1,13 +1,11 @@
 """Tests for REST endpoint routers (countries, indicators, timeseries)."""
 
-from unittest.mock import Mock, sentinel
+from unittest.mock import Mock
 
 import pytest
 from fastapi.testclient import TestClient
 
 from idp.api.main import app
-from idp.api.schemas.country import CountryResponse
-from idp.api.schemas.indicator import IndicatorResponse, TimeseriesData
 
 
 @pytest.fixture

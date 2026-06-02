@@ -1,12 +1,14 @@
 """Gemini client for RAG answer generation."""
 
 import logging
-import os
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 import google.generativeai as genai
 from google.api_core.exceptions import InternalServerError, ResourceExhausted
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+
+from idp.common.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +28,10 @@ INSTRUCTIONS:
 class RAGClient:
     """Client for generating answers using Gemini."""
 
-    def __init__(self, model_name: str = "gemini-2.5-pro"):
-        self.api_key = os.environ.get("GEMINI_API_KEY")
+    def __init__(self, api_key: str | None = None, model_name: str = "gemini-2.5-pro"):
+        self.api_key = api_key or get_settings().gemini.api_key
         if not self.api_key:
-            raise ValueError("GEMINI_API_KEY environment variable is required")
+            raise ValueError("GEMINI_API_KEY is required (pass it or set it in .env)")
 
         genai.configure(api_key=self.api_key, transport="rest")
         self.model = genai.GenerativeModel(

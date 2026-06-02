@@ -1,6 +1,5 @@
 """Tests for chat router."""
 
-import json
 from unittest.mock import Mock, patch
 
 import pytest

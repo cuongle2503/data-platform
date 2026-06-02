@@ -1,9 +1,7 @@
 """Tests for RAG engine components."""
 
-import pytest
-
-from idp.intelligence.query_parser import extract_entities, normalize_query
 from idp.intelligence.context_builder import build_context
+from idp.intelligence.query_parser import extract_entities, normalize_query
 
 
 class TestQueryParser:

@@ -1,7 +1,6 @@
 """Tests for World Bank indicators pipeline."""
 
 from unittest.mock import AsyncMock, patch
-from unittest.mock import AsyncMock
 
 import pytest
 
@@ -250,7 +249,7 @@ async def test_pipeline_run(mock_settings: Settings):
             }
         ]
 
-        result = await pipeline.run(countries=["VN"], indicators=["NY.GDP.MKTP.CD"])
+        result = await pipeline.run(countries=["VNM"], indicators=["NY.GDP.MKTP.CD"])
 
         assert len(result) == 1
         assert result[0]["country_code"] == "VNM"
@@ -276,7 +275,7 @@ async def test_pipeline_run_multiple_countries(mock_settings: Settings):
             }
         ]
 
-        result = await pipeline.run(countries=["VN", "CN"])
+        result = await pipeline.run(countries=["VNM", "CHN"])
 
         assert len(result) == 2
         assert mock_fetch.call_count == 2
