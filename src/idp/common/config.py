@@ -15,7 +15,9 @@ class MinIOConfig(BaseSettings):
     secure: bool = Field(default=False)
     bucket_bronze: str = Field(default="bronze")
 
-    model_config = SettingsConfigDict(env_prefix="MINIO_")
+    model_config = SettingsConfigDict(
+        env_prefix="MINIO_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
 
 class PostgresConfig(BaseSettings):
@@ -27,7 +29,9 @@ class PostgresConfig(BaseSettings):
     user: str = Field(default="idp_user")
     password: str = Field(default="changeme")
 
-    model_config = SettingsConfigDict(env_prefix="POSTGRES_")
+    model_config = SettingsConfigDict(
+        env_prefix="POSTGRES_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
     @property
     def database_url(self) -> str:
@@ -40,7 +44,9 @@ class DuckDBConfig(BaseSettings):
 
     path: str = Field(default="data/gold.duckdb")
 
-    model_config = SettingsConfigDict(env_prefix="DUCKDB_")
+    model_config = SettingsConfigDict(
+        env_prefix="DUCKDB_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
 
 class GeminiConfig(BaseSettings):
@@ -50,7 +56,9 @@ class GeminiConfig(BaseSettings):
     embedding_model: str = Field(default="text-embedding-004")
     chat_model: str = Field(default="gemini-2.0-flash")
 
-    model_config = SettingsConfigDict(env_prefix="GEMINI_")
+    model_config = SettingsConfigDict(
+        env_prefix="GEMINI_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
 
 class APIConfig(BaseSettings):
@@ -61,7 +69,9 @@ class APIConfig(BaseSettings):
     reload: bool = Field(default=True)
     log_level: str = Field(default="INFO")
 
-    model_config = SettingsConfigDict(env_prefix="API_")
+    model_config = SettingsConfigDict(
+        env_prefix="API_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
 
 class ProxyConfig(BaseSettings):
@@ -71,7 +81,9 @@ class ProxyConfig(BaseSettings):
     https_proxy: str | None = Field(default=None)
     no_proxy: str = Field(default="localhost,127.0.0.1")
 
-    model_config = SettingsConfigDict(env_prefix="")
+    model_config = SettingsConfigDict(
+        env_prefix="", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
     def get_proxies(self) -> dict[str, str] | None:
         """Get proxy dict for httpx/requests."""
@@ -92,7 +104,9 @@ class WorldBankConfig(BaseSettings):
     batch_size: int = Field(default=10)
     default_start_year: int = Field(default=2010)
 
-    model_config = SettingsConfigDict(env_prefix="WB_")
+    model_config = SettingsConfigDict(
+        env_prefix="WB_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
 
 class Settings(BaseSettings):

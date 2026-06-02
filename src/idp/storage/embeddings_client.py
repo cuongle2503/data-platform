@@ -1,9 +1,10 @@
 import logging
-import os
 
 import google.generativeai as genai
 from google.api_core.exceptions import InternalServerError, ResourceExhausted
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+
+from idp.common.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -11,10 +12,14 @@ logger = logging.getLogger(__name__)
 class GeminiEmbeddingsClient:
     """Client for generating text embeddings using Google's Gemini API."""
 
-    def __init__(self, model_name: str = "models/text-embedding-004"):
-        self.api_key = os.environ.get("GEMINI_API_KEY")
+    def __init__(
+        self,
+        api_key: str | None = None,
+        model_name: str = "models/text-embedding-004",
+    ):
+        self.api_key = api_key or get_settings().gemini.api_key
         if not self.api_key:
-            raise ValueError("GEMINI_API_KEY environment variable is required")
+            raise ValueError("GEMINI_API_KEY is required (pass it or set it in .env)")
 
         genai.configure(api_key=self.api_key, transport="rest")
         self.model_name = model_name

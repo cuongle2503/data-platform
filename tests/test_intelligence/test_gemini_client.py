@@ -1,6 +1,5 @@
 """Tests for Gemini RAG client."""
 
-import os
 from unittest.mock import Mock, patch
 
 import pytest
@@ -8,23 +7,19 @@ import pytest
 from idp.intelligence.gemini_client import RAGClient
 
 
-@pytest.fixture
-def mock_genai():
-    """Mock the genai module."""
-    with patch("idp.intelligence.gemini_client.genai") as mock:
-        mock_model = Mock()
-        mock_model.generate_content.return_value.text = "Mocked answer [IND:NY.GDP]"
-        mock.GenerativeModel.return_value = mock_model
-        yield mock
-
-
 class TestRAGClient:
     """Test RAG client interaction with Gemini."""
 
-    @patch.dict(os.environ, {"GEMINI_API_KEY": "test_key"})
-    def test_generate_answer(self, mock_genai):
+    @patch("idp.intelligence.gemini_client.genai")
+    @patch("idp.intelligence.gemini_client.get_settings")
+    def test_generate_answer(self, mock_settings, mock_genai):
         """Should generate answer using context."""
         # Arrange
+        mock_settings.return_value.gemini.api_key = "test_key"
+        mock_model = Mock()
+        mock_model.generate_content.return_value.text = "Mocked answer [IND:NY.GDP]"
+        mock_genai.GenerativeModel.return_value = mock_model
+
         client = RAGClient()
         query = "What is the GDP?"
         context = "NY.GDP is 100"
@@ -39,9 +34,12 @@ class TestRAGClient:
         assert query in call_args
         assert context in call_args
 
-    @patch.dict(os.environ, clear=True)
-    def test_client_requires_api_key(self):
+    @patch("idp.intelligence.gemini_client.get_settings")
+    def test_client_requires_api_key(self, mock_settings):
         """Should raise error if API key is missing."""
-        # Arrange, Act & Assert
+        # Arrange
+        mock_settings.return_value.gemini.api_key = None
+
+        # Act & Assert
         with pytest.raises(ValueError, match="GEMINI_API_KEY"):
             RAGClient()

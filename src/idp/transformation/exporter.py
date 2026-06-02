@@ -81,7 +81,7 @@ def export_gold_to_postgres(
 
                 # Infer PostgreSQL types from Polars
                 create_cols = []
-                for col_name, dtype in zip(df.columns, df.dtypes):
+                for col_name, dtype in zip(df.columns, df.dtypes, strict=True):
                     pg_type = _polars_to_postgres_type(dtype)
                     create_cols.append(f"{col_name} {pg_type}")
 

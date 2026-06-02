@@ -1,9 +1,10 @@
 import os
-import psycopg2
 from unittest.mock import MagicMock
+
+import psycopg2
+
 from idp.storage.generate_indicator_embeddings import (
     generate_indicator_embeddings,
-    get_existing_ref_ids,
 )
 
 

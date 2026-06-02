@@ -10,7 +10,6 @@ Data flow:
 """
 
 import logging
-import os
 from typing import Any
 
 import psycopg2
@@ -150,7 +149,7 @@ def _process_chunk_batch(
 
     cur = conn.cursor()
     created = 0
-    for ref_id, embedding in zip(ref_ids, embeddings):
+    for ref_id, embedding in zip(ref_ids, embeddings, strict=True):
         try:
             cur.execute(
                 """
@@ -181,14 +180,13 @@ def run() -> None:
     """Main entry point for document embeddings generation pipeline."""
     logging.basicConfig(level=logging.INFO)
 
-    db_url = os.environ.get("DATABASE_URL")
-    if not db_url:
-        logger.error("DATABASE_URL environment variable is required")
-        return
+    from idp.common.config import get_settings
 
-    minio_endpoint = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
-    minio_access = os.environ.get("MINIO_ACCESS_KEY", "minioadmin")
-    minio_secret = os.environ.get("MINIO_SECRET_KEY", "minioadmin")
+    settings = get_settings()
+    db_url = settings.postgres.database_url
+    minio_endpoint = settings.minio.endpoint
+    minio_access = settings.minio.access_key
+    minio_secret = settings.minio.secret_key
 
     client = GeminiEmbeddingsClient()
     minio_client = MinioClient(

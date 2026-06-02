@@ -1,7 +1,6 @@
 """Indicators REST router."""
 
 import logging
-from typing import Any
 
 from fastapi import APIRouter, Query, status
 from fastapi.responses import JSONResponse

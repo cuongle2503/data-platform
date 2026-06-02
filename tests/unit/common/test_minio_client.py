@@ -54,10 +54,12 @@ def test_upload_dataframe(minio_client: MinioClient):
     # Arrange
     df = pl.DataFrame({"col1": [1, 2, 3], "col2": ["a", "b", "c"]})
 
-    with patch.object(minio_client.client, "put_object") as mock_put:
-        with patch.object(minio_client.client, "bucket_exists", return_value=True):
-            # Act
-            result = minio_client.upload_dataframe(df, "test/path/data.parquet")
+    with (
+        patch.object(minio_client.client, "put_object") as mock_put,
+        patch.object(minio_client.client, "bucket_exists", return_value=True),
+    ):
+        # Act
+        result = minio_client.upload_dataframe(df, "test/path/data.parquet")
 
     # Assert
     assert result == "bronze/test/path/data.parquet"
@@ -73,11 +75,13 @@ def test_upload_dataframe_creates_bucket_if_missing(minio_client: MinioClient):
     # Arrange
     df = pl.DataFrame({"x": [1]})
 
-    with patch.object(minio_client.client, "put_object"):
-        with patch.object(minio_client.client, "bucket_exists", return_value=False) as mock_exists:
-            with patch.object(minio_client.client, "make_bucket") as mock_make:
-                # Act
-                minio_client.upload_dataframe(df, "test/file.parquet")
+    with (
+        patch.object(minio_client.client, "put_object"),
+        patch.object(minio_client.client, "bucket_exists", return_value=False) as mock_exists,
+        patch.object(minio_client.client, "make_bucket") as mock_make,
+    ):
+        # Act
+        minio_client.upload_dataframe(df, "test/file.parquet")
 
     # Assert
     mock_exists.assert_called_once_with("bronze")
@@ -95,10 +99,12 @@ def test_upload_dataframe_uses_custom_bucket():
     )
     df = pl.DataFrame({"x": [1]})
 
-    with patch.object(client.client, "put_object"):
-        with patch.object(client.client, "bucket_exists", return_value=True) as mock_exists:
-            # Act
-            client.upload_dataframe(df, "test/file.parquet")
+    with (
+        patch.object(client.client, "put_object"),
+        patch.object(client.client, "bucket_exists", return_value=True) as mock_exists,
+    ):
+        # Act
+        client.upload_dataframe(df, "test/file.parquet")
 
     # Assert
     mock_exists.assert_called_once_with("custom-bucket")
@@ -144,10 +150,12 @@ def test_list_objects(minio_client: MinioClient):
     mock_obj2 = Mock()
     mock_obj2.object_name = "test/file2.parquet"
 
-    with patch.object(minio_client.client, "bucket_exists", return_value=True):
-        with patch.object(minio_client.client, "list_objects", return_value=[mock_obj, mock_obj2]):
-            # Act
-            result = minio_client.list_objects("test/")
+    with (
+        patch.object(minio_client.client, "bucket_exists", return_value=True),
+        patch.object(minio_client.client, "list_objects", return_value=[mock_obj, mock_obj2]),
+    ):
+        # Act
+        result = minio_client.list_objects("test/")
 
     # Assert
     assert result == ["test/file1.parquet", "test/file2.parquet"]
@@ -156,10 +164,12 @@ def test_list_objects(minio_client: MinioClient):
 def test_list_objects_empty(minio_client: MinioClient):
     """Test listing objects with no results."""
     # Arrange
-    with patch.object(minio_client.client, "bucket_exists", return_value=True):
-        with patch.object(minio_client.client, "list_objects", return_value=[]):
-            # Act
-            result = minio_client.list_objects("nonexistent/")
+    with (
+        patch.object(minio_client.client, "bucket_exists", return_value=True),
+        patch.object(minio_client.client, "list_objects", return_value=[]),
+    ):
+        # Act
+        result = minio_client.list_objects("nonexistent/")
 
     # Assert
     assert result == []
@@ -192,7 +202,8 @@ def test_read_dataframe_failure(minio_client: MinioClient):
     # Arrange
     from idp.common.exceptions import StorageError
 
-    with patch.object(minio_client.client, "get_object", side_effect=Exception("S3 error")):
-        # Act & Assert
-        with pytest.raises(StorageError, match="Failed to read test_file.parquet"):
-            minio_client.read_dataframe("test_file.parquet")
+    with (
+        patch.object(minio_client.client, "get_object", side_effect=Exception("S3 error")),
+        pytest.raises(StorageError, match="Failed to read test_file\\.parquet"),
+    ):
+        minio_client.read_dataframe("test_file.parquet")

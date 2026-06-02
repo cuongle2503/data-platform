@@ -1,7 +1,7 @@
 """Unit tests for the World Bank pipeline DAG."""
 
-import sys
 import os
+import sys
 from datetime import timedelta
 
 import pytest

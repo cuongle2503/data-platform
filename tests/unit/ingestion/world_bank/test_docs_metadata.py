@@ -149,7 +149,7 @@ async def test_fetch_all_docs_metadata_respects_max_pages():
     }
 
     # Act
-    result = await fetch_all_docs_metadata(
+    docs = await fetch_all_docs_metadata(
         http_client=mock_http,
         country_code="VN",
         max_pages=2,
@@ -157,3 +157,4 @@ async def test_fetch_all_docs_metadata_respects_max_pages():
 
     # Assert
     assert mock_http.get.call_count == 2
+    assert len(docs) > 0

@@ -1,8 +1,8 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
 from idp.storage.generate_indicator_embeddings import (
-    generate_indicator_embeddings,
     _process_batch,
+    generate_indicator_embeddings,
     run,
 )
 
@@ -75,21 +75,16 @@ def test_generate_indicator_embeddings(mock_process, mock_get_existing):
     assert mock_process.call_count == 2
 
 
-@patch("os.environ.get")
+@patch("idp.common.config.get_settings")
 @patch("idp.storage.generate_indicator_embeddings.GeminiEmbeddingsClient")
 @patch("idp.storage.generate_indicator_embeddings.psycopg2.connect")
 @patch("idp.storage.generate_indicator_embeddings.generate_indicator_embeddings")
-def test_run_success(mock_gen, mock_connect, mock_client, mock_env):
-    mock_env.return_value = "postgres://url"
+def test_run_success(mock_gen, mock_connect, mock_client, mock_settings):
+    mock_pg = MagicMock()
+    mock_pg.database_url = "postgres://url"
+    mock_settings.return_value.postgres = mock_pg
 
     run()
 
     mock_connect.assert_called_once()
     mock_gen.assert_called_once()
-
-
-@patch("os.environ.get")
-def test_run_no_db_url(mock_env):
-    mock_env.return_value = None
-
-    run()  # Should return early and not raise

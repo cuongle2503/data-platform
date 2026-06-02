@@ -1,7 +1,7 @@
-import pytest
-from unittest.mock import MagicMock
-from idp.storage.repository import StorageRepository
+from unittest.mock import MagicMock, patch
+
 from idp.storage.embeddings_client import GeminiEmbeddingsClient
+from idp.storage.repository import StorageRepository
 
 
 def test_repo_get_country_not_found():
@@ -24,8 +24,8 @@ def test_repo_get_indicator_not_found():
     assert repo.get_indicator("UNKNOWN") is None
 
 
-def test_client_empty_batch():
-    with pytest.MonkeyPatch.context() as m:
-        m.setenv("GEMINI_API_KEY", "test-key")
-        client = GeminiEmbeddingsClient()
-        assert client.generate_embeddings_batch([]) == []
+@patch("idp.storage.embeddings_client.get_settings")
+def test_client_empty_batch(mock_settings):
+    mock_settings.return_value.gemini.api_key = "test-key"
+    client = GeminiEmbeddingsClient()
+    assert client.generate_embeddings_batch([]) == []
