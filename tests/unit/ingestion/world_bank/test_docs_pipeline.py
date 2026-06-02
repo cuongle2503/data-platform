@@ -203,17 +203,18 @@ def test_normalize_doc_record_handles_empty_topics(mock_settings: Settings):
     # Assert
     assert result["topics"] == []
 
+
 @pytest.mark.asyncio
 async def test_docs_pipeline_run(mock_settings: Settings):
     """Test full pipeline run for documents."""
     mock_http = AsyncMock()
     pipeline = WorldBankDocsPipeline(settings=mock_settings, http_client=mock_http)
-    
-    with patch.object(pipeline, 'fetch_metadata', new_callable=AsyncMock) as mock_fetch:
+
+    with patch.object(pipeline, "fetch_metadata", new_callable=AsyncMock) as mock_fetch:
         mock_fetch.return_value = [{"doc_id": "1", "title": "Test 1"}]
-        
+
         result = await pipeline.run(countries=["VN"], max_pages_per_country=1)
-        
+
         assert len(result) == 1
         assert result[0]["doc_id"] == "1"
         mock_fetch.assert_called_once_with(
@@ -224,16 +225,17 @@ async def test_docs_pipeline_run(mock_settings: Settings):
             max_pages=1,
         )
 
+
 @pytest.mark.asyncio
 async def test_docs_pipeline_run_multiple_countries(mock_settings: Settings):
     """Test pipeline run across multiple countries."""
     mock_http = AsyncMock()
     pipeline = WorldBankDocsPipeline(settings=mock_settings, http_client=mock_http)
-    
-    with patch.object(pipeline, 'fetch_metadata', new_callable=AsyncMock) as mock_fetch:
+
+    with patch.object(pipeline, "fetch_metadata", new_callable=AsyncMock) as mock_fetch:
         mock_fetch.return_value = [{"doc_id": "1", "title": "Test 1"}]
-        
+
         result = await pipeline.run(countries=["VN", "CN"])
-        
+
         assert len(result) == 2
         assert mock_fetch.call_count == 2

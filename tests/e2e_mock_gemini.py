@@ -1,7 +1,11 @@
 import os
 import psycopg2
 from unittest.mock import MagicMock
-from idp.storage.generate_indicator_embeddings import generate_indicator_embeddings, get_existing_ref_ids
+from idp.storage.generate_indicator_embeddings import (
+    generate_indicator_embeddings,
+    get_existing_ref_ids,
+)
+
 
 def run_e2e_test():
     db_url = os.environ.get("DATABASE_URL", "postgresql://idp_user:changeme@localhost:5433/idp")
@@ -30,17 +34,21 @@ def run_e2e_test():
     print(f"Created {created_again} embeddings on second run (should be 0)")
 
     # Verify we can do a vector search
-    cur.execute("""
+    cur.execute(
+        """
         SELECT ref_id, 1 - (embedding <=> %s::vector) as similarity
         FROM embeddings.economic_embeddings
         LIMIT 1
-    """, ([0.1] * 768,))
+    """,
+        ([0.1] * 768,),
+    )
 
     result = cur.fetchone()
     if result:
         print(f"Search successful. Found {result[0]} with similarity {result[1]:.4f}")
 
     conn.close()
+
 
 if __name__ == "__main__":
     run_e2e_test()

@@ -123,7 +123,13 @@ class StorageRepository:
         cur.execute(query, params)
         rows = cur.fetchall()
         return [
-            {"country_code": r[0], "indicator_code": r[1], "year": r[2], "value": r[3], "source": r[4]}
+            {
+                "country_code": r[0],
+                "indicator_code": r[1],
+                "year": r[2],
+                "value": r[3],
+                "source": r[4],
+            }
             for r in rows
         ]
 

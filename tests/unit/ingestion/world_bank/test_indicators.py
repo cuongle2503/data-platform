@@ -45,9 +45,13 @@ async def test_fetch_indicator_data_with_years():
     mock_response = [
         {"page": 1, "pages": 1, "per_page": 1000, "total": 1},
         [
-            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-             "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
-             "date": "2022", "value": 400.0},
+            {
+                "countryiso3code": "VNM",
+                "country": {"value": "Vietnam"},
+                "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+                "date": "2022",
+                "value": 400.0,
+            },
         ],
     ]
     mock_http.get.return_value = mock_response
@@ -105,9 +109,13 @@ async def test_fetch_multiple_indicators():
     mock_response = [
         {"page": 1, "pages": 1, "per_page": 1000, "total": 1},
         [
-            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-             "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
-             "date": "2023", "value": 429.0},
+            {
+                "countryiso3code": "VNM",
+                "country": {"value": "Vietnam"},
+                "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+                "date": "2023",
+                "value": 429.0,
+            },
         ],
     ]
     mock_http.get.return_value = mock_response
@@ -137,9 +145,13 @@ async def test_fetch_multiple_indicators_handles_partial_failure():
     success_response = [
         {"page": 1, "pages": 1, "per_page": 1000, "total": 1},
         [
-            {"countryiso3code": "VNM", "country": {"value": "Vietnam"},
-             "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
-             "date": "2023", "value": 429.0},
+            {
+                "countryiso3code": "VNM",
+                "country": {"value": "Vietnam"},
+                "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+                "date": "2023",
+                "value": 429.0,
+            },
         ],
     ]
     mock_http.get.side_effect = [

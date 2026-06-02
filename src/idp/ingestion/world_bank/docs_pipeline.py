@@ -140,9 +140,7 @@ class WorldBankDocsPipeline:
             normalized = [self.normalize_doc_record(r) for r in raw_docs]
             valid_records = validate_docs_records(normalized)
 
-            logger.info(
-                f"Normalized {len(valid_records)} valid docs for {country_code}"
-            )
+            logger.info(f"Normalized {len(valid_records)} valid docs for {country_code}")
             return valid_records
 
         except IngestionError as e:

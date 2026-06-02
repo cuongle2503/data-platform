@@ -49,7 +49,9 @@ def export_gold_to_postgres(
     try:
         # Create schema if not exists
         with pg_conn.cursor() as cur:
-            cur.execute(sql.SQL("CREATE SCHEMA IF NOT EXISTS {}").format(sql.Identifier(schema_name)))
+            cur.execute(
+                sql.SQL("CREATE SCHEMA IF NOT EXISTS {}").format(sql.Identifier(schema_name))
+            )
             pg_conn.commit()
             logger.info(f"Schema '{schema_name}' ready")
 
@@ -133,9 +135,7 @@ def _polars_to_postgres_type(dtype: pl.DataType) -> str:
 
 @app.command()
 def main(
-    duckdb_path: str = typer.Option(
-        "data/gold.duckdb", help="Path to DuckDB database file"
-    ),
+    duckdb_path: str = typer.Option("data/gold.duckdb", help="Path to DuckDB database file"),
     schema_name: str = typer.Option("gold", help="PostgreSQL schema name"),
 ) -> None:
     """Export Gold tables from DuckDB to PostgreSQL."""

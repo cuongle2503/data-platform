@@ -58,17 +58,13 @@ def run_e2e_doc_embeddings_test():
     cur = conn.cursor()
 
     # Clean up existing test embeddings
-    cur.execute(
-        "DELETE FROM embeddings.economic_embeddings WHERE ref_type = 'world_bank_report'"
-    )
+    cur.execute("DELETE FROM embeddings.economic_embeddings WHERE ref_type = 'world_bank_report'")
     conn.commit()
     print("Cleaned up existing doc embeddings")
 
     # Mock Gemini client to return dummy vectors of size 768
     mock_client = MagicMock()
-    mock_client.generate_embeddings_batch.side_effect = lambda texts: [
-        [0.1] * 768 for _ in texts
-    ]
+    mock_client.generate_embeddings_batch.side_effect = lambda texts: [[0.1] * 768 for _ in texts]
 
     # Run the generator
     created = generate_doc_embeddings(conn, mock_client, minio_client, batch_size=2)

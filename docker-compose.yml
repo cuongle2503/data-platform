@@ -18,6 +18,8 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+    networks:
+      - idp-network
 
   # Phase 2: Serving Database (Gold)
   postgres:
@@ -37,7 +39,116 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      - idp-network
+
+  # Phase 4: Intelligence Layer (FastAPI)
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: idp-api
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-idp}
+      - POSTGRES_USER=${POSTGRES_USER:-idp_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
+      - NO_PROXY=localhost,127.0.0.1,minio,postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - idp-network
+
+  # Phase 5: Orchestration (Airflow 3.0)
+  airflow-init:
+    image: apache/airflow:2.10.3-python3.11
+    container_name: idp-airflow-init
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER:-idp_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-idp}
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=}
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET_KEY:-changeme}
+      - _AIRFLOW_DB_MIGRATE=true
+      - _AIRFLOW_WWW_USER_CREATE=true
+      - _AIRFLOW_WWW_USER_USERNAME=${AIRFLOW_USER:-admin}
+      - _AIRFLOW_WWW_USER_PASSWORD=${AIRFLOW_PASSWORD:-admin}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - idp-network
+    command: version
+
+  airflow-webserver:
+    image: apache/airflow:2.10.3-python3.11
+    container_name: idp-airflow-webserver
+    ports:
+      - "8080:8080"
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER:-idp_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-idp}
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=}
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET_KEY:-changeme}
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
+      - NO_PROXY=localhost,127.0.0.1,minio,postgres
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
+      - ./dbt:/opt/airflow/dbt
+      - ./data:/opt/airflow/data
+    depends_on:
+      - airflow-init
+      - postgres
+    restart: unless-stopped
+    networks:
+      - idp-network
+    command: webserver
+
+  airflow-scheduler:
+    image: apache/airflow:2.10.3-python3.11
+    container_name: idp-airflow-scheduler
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER:-idp_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-idp}
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY:-46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=}
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
+      - NO_PROXY=localhost,127.0.0.1,minio,postgres
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-idp_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-idp}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
+      - ./dbt:/opt/airflow/dbt
+      - ./data:/opt/airflow/data
+    depends_on:
+      - airflow-init
+      - postgres
+    restart: unless-stopped
+    networks:
+      - idp-network
+    command: scheduler
 
 volumes:
   minio_data:
   postgres_data:
+
+networks:
+  idp-network:
+    driver: bridge

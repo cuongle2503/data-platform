@@ -164,6 +164,7 @@ def test_list_objects_empty(minio_client: MinioClient):
     # Assert
     assert result == []
 
+
 def test_read_dataframe_success(minio_client: MinioClient):
     """Test reading a Parquet file from MinIO."""
     # Arrange

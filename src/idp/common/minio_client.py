@@ -101,7 +101,7 @@ class MinioClient:
 
         Returns:
             Polars DataFrame containing the object data.
-            
+
         Raises:
             StorageError: If download or parsing fails.
         """

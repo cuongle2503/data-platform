@@ -63,7 +63,7 @@ def test_countries_list_not_empty():
     # Assert
     assert len(COUNTRIES) > 0
     country_codes = [c["code"] for c in COUNTRIES]
-    assert "VN" in country_codes  # Vietnam
+    assert "VNM" in country_codes  # Vietnam
     assert "CN" in country_codes  # China
 
 

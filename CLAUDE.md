@@ -53,5 +53,5 @@ docker compose up -d       # Start services
 
 ## Project Status (2026-06-01)
 
-**Current**: Architecture docs complete, no code yet
-**Next**: Implement Layer 1 (World Bank ingestion to MinIO Bronze)
+**Current**: IDP MVP complete and operational (Phases 1-5 finished)
+**Next**: Production deployment optimization
