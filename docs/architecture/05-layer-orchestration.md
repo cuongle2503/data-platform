@@ -4,26 +4,30 @@
 
 Layer 5 coordinates pipelines and ensures operational robustness:
 
-- **Airflow 3.0** orchestrates DAGs for ingestion, transformation, export, and embeddings.
+- **Apache Airflow 2.10.3** orchestrates DAGs for ingestion, transformation, export, and embeddings.
 - **Docker Compose** defines service containers and resource limits.
-- **Nginx** (optional) provides secure external access.
-- **Prometheus/Grafana** (optional) collect metrics and display dashboards.
+- **Nginx** (optional, deferred) provides secure external access.
+- **Prometheus/Grafana** (optional, deferred) collect metrics and display dashboards.
 
 Environment configuration describes ports, networks, volumes, env vars, and security checklist.
 
 ## World Bank DAG
 
-An example World Bank DAG:
+The `world_bank_pipeline` DAG orchestrates the full data flow:
 
-1. `world_bank_ingest`: run the Python connector to pull new World Bank data into Bronze.
-2. `dbt_run_world_bank`: run `dbt run` for `stg_world_bank__indicators` and Gold models.
-3. `dbt_test_world_bank`: run `dbt test` to enforce data quality.
-4. `export_gold_world_bank`: export Gold from DuckDB to PostgreSQL.
-5. `refresh_embeddings_world_bank`: update embeddings.
+1. `ingest_bronze_data`: run the Python connector to pull new World Bank data into MinIO Bronze.
+2. `dbt_run`: run `dbt run` for `stg_world_bank__indicators` and Gold models.
+3. `dbt_test`: run `dbt test` to enforce data quality.
+4. `export_to_serving`: export Gold from DuckDB to PostgreSQL.
+5. `generate_embeddings`: update embeddings via Gemini API.
+
+Tasks run sequentially with `catchup=False` and `max_active_runs=1` to ensure idempotency.
+
+**Callbacks**: Task and DAG-level failure/success callbacks log to stdout (see `src/idp/orchestration/callbacks.py`). Email/Slack/PagerDuty integrations are TODO placeholders.
 
 ## Docker Compose Setup
 
-The core infrastructure is defined in a `docker-compose.yml` file to run on a single machine:
+The core infrastructure is defined in `docker-compose.yml` to run on a single machine:
 
 ```yaml
 version: '3.8'
@@ -46,7 +50,7 @@ services:
   postgres:
     image: pgvector/pgvector:pg16
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_USER=${PG_USER}
       - POSTGRES_PASSWORD=${PG_PASSWORD}
@@ -54,28 +58,36 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
-  # Airflow 3.0 for Orchestration
+  # Apache Airflow 2.10.3 for Orchestration
   airflow-webserver:
-    image: apache/airflow:3.0.0
+    image: apache/airflow:2.10.3-python3.11
     command: webserver
     ports:
       - "8080:8080"
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${PG_USER}:${PG_PASSWORD}@postgres:5432/airflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${PG_USER}:${PG_PASSWORD}@postgres:5432/${PG_DB}
     depends_on:
       - postgres
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
 
   airflow-scheduler:
-    image: apache/airflow:3.0.0
+    image: apache/airflow:2.10.3-python3.11
     command: scheduler
     depends_on:
       - airflow-webserver
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./dbt:/opt/airflow/dbt
 
   # FastAPI for Intelligence layer
   api:
     build:
-      context: ./api
+      context: ./docker
+      dockerfile: Dockerfile.api
     ports:
       - "8000:8000"
     environment:
@@ -101,3 +113,5 @@ volumes:
 - Scheduled backups for PostgreSQL data (Gold layer & Embeddings)
 - MinIO Bronze data mirrored/backed up periodically
 - Airflow metadata database backed up daily
+
+See [docs/OPERATIONS.md](../OPERATIONS.md) for detailed backup/restore procedures.
