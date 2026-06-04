@@ -59,14 +59,14 @@ def world_bank_pipeline():
 
     dbt_run = BashOperator(
         task_id="dbt_run",
-        bash_command="cd /opt/airflow/dbt && dbt run --target dev",
-        env={"DBT_PROFILES_DIR": "/opt/airflow/dbt"},
+        bash_command="cd /opt/airflow/dbt/idp && HOME=/home/airflow /home/airflow/.local/bin/dbt run --target dev",
+        env={"DBT_PROFILES_DIR": "/opt/airflow/dbt", "MINIO_ENDPOINT": "minio:9000"},
     )
 
     dbt_test = BashOperator(
         task_id="dbt_test",
-        bash_command="cd /opt/airflow/dbt && dbt test --target dev",
-        env={"DBT_PROFILES_DIR": "/opt/airflow/dbt"},
+        bash_command="cd /opt/airflow/dbt/idp && HOME=/home/airflow /home/airflow/.local/bin/dbt test --target dev",
+        env={"DBT_PROFILES_DIR": "/opt/airflow/dbt", "MINIO_ENDPOINT": "minio:9000"},
     )
 
     @task(retries=2)

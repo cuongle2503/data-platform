@@ -102,6 +102,8 @@ services:
       - HTTP_PROXY=${HTTP_PROXY}
       - HTTPS_PROXY=${HTTPS_PROXY}
       - NO_PROXY=localhost,127.0.0.1,minio,postgres
+      - PYTHONPATH=/opt/airflow/src
+      - _PIP_ADDITIONAL_REQUIREMENTS=pydantic pydantic-settings minio pgvector httpx google-genai dbt-core dbt-duckdb
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
@@ -130,6 +132,9 @@ services:
       - NO_PROXY=localhost,127.0.0.1,minio,postgres
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-idp_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-idp}
+      - MINIO_ENDPOINT=minio:9000
+      - PYTHONPATH=/opt/airflow/src
+      - _PIP_ADDITIONAL_REQUIREMENTS=pydantic pydantic-settings minio pgvector httpx google-genai dbt-core dbt-duckdb
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
