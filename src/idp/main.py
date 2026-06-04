@@ -1,10 +1,13 @@
 """Main entry point for IDP."""
 
 import asyncio
+import logging
 import sys
 
 from idp.common.logging_config import setup_logging
 from idp.ingestion.cli import main as ingestion_main
+
+logger = logging.getLogger(__name__)
 
 
 def main() -> int:
@@ -12,15 +15,14 @@ def main() -> int:
     setup_logging()
 
     # Determine which subcommand group to run
-    # Currently we only have ingestion commands
     if len(sys.argv) > 1 and sys.argv[1].startswith("ingest-"):
         return asyncio.run(ingestion_main(sys.argv[1:]))
 
-    # For now, default to showing ingestion help if no args
+    # Default to showing ingestion help if no args
     if len(sys.argv) == 1:
         return asyncio.run(ingestion_main(["--help"]))
 
-    print(f"Unknown command group: {sys.argv[1]}")
+    logger.error("Unknown command group: %s", sys.argv[1])
     return 1
 
 

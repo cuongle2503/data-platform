@@ -8,7 +8,7 @@ def normalize_query(query: str) -> str:
     return query.strip().lower()
 
 
-def extract_entities(query: str) -> dict[str, list]:
+def extract_entities(query: str) -> dict[str, list[str] | list[int]]:
     """
     Extract relevant entities (country codes, years) from a query.
     Simple regex-based extraction for now.

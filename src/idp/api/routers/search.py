@@ -1,6 +1,7 @@
 """Search API router — lexical + semantic combined search."""
 
 import logging
+from typing import cast
 
 from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
@@ -14,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 def merge_results(
-    lexical: list[dict],
-    semantic: list[dict],
+    lexical: list[dict[str, object]],
+    semantic: list[dict[str, object]],
     limit: int,
 ) -> list[SearchResultItem]:
     """
@@ -29,31 +30,31 @@ def merge_results(
     merged: list[SearchResultItem] = []
 
     for item in semantic:
-        code = item["indicator_code"]
+        code = str(item["indicator_code"])
         if code in seen:
             continue
         seen.add(code)
         merged.append(
             SearchResultItem(
                 indicator_code=code,
-                indicator_name=item["indicator_name"],
-                category=item.get("category"),
-                similarity=item.get("similarity"),
+                indicator_name=str(item["indicator_name"]),
+                category=cast(str | None, item.get("category")),
+                similarity=cast(float | None, item.get("similarity")),
                 source="semantic",
             )
         )
 
     for item in lexical:
-        code = item["indicator_code"]
+        code = str(item["indicator_code"])
         if code in seen:
             continue
         seen.add(code)
         merged.append(
             SearchResultItem(
                 indicator_code=code,
-                indicator_name=item["indicator_name"],
-                category=item.get("category"),
-                description=item.get("description"),
+                indicator_name=str(item["indicator_name"]),
+                category=cast(str | None, item.get("category")),
+                description=cast(str | None, item.get("description")),
                 source="lexical",
             )
         )
@@ -85,20 +86,20 @@ def create_router(repo: StorageRepository, embeddings_client: GeminiEmbeddingsCl
             # Merge and rank results
             results = merge_results(lexical_results, semantic_results, limit)
 
-            envelope = ResponseEnvelope(
+            ok_envelope: ResponseEnvelope[list[dict[str, object]]] = ResponseEnvelope(
                 data=[r.model_dump() for r in results],
                 meta=None,
                 error=None,
             )
-            return JSONResponse(content=envelope.model_dump())
+            return JSONResponse(content=ok_envelope.model_dump())
 
         except Exception as exc:
             logger.exception("Search error: %s", exc)
-            envelope = ResponseEnvelope(
+            error_envelope: ResponseEnvelope[object] = ResponseEnvelope(
                 data=None,
                 meta=None,
                 error=ErrorDetail(code="SEARCH_ERROR", message=str(exc)),
             )
-            return JSONResponse(content=envelope.model_dump(), status_code=500)
+            return JSONResponse(content=error_envelope.model_dump(), status_code=500)
 
     return router

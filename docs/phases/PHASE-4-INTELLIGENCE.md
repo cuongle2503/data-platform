@@ -70,14 +70,14 @@
 **Estimated Time**: 8 hours  
 **Status**: ✅ COMPLETED
 
-- [x] Create `src/intelligence/query_parser.py`:
+- [x] Create `src/idp/intelligence/query_parser.py`:
   - Implement `normalize_query(query)` to extract entities (country codes, years)
 
-- [x] Create `src/intelligence/context_builder.py`:
+- [x] Create `src/idp/intelligence/context_builder.py`:
   - Implement logic to fetch fact data based on search results
   - Format data as markdown tables for LLM consumption
 
-- [x] Create `src/intelligence/gemini_client.py`:
+- [x] Create `src/idp/intelligence/gemini_client.py`:
   - Setup GenerativeModel (`gemini-2.5-pro`)
   - Define strict System Prompt restricting answers to provided context
   - Implement `generate_answer(query, context)` and `generate_answer_stream(query, context)`

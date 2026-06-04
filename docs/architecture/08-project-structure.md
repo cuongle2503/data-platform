@@ -14,7 +14,7 @@ data-platform/
 ├── README.md               # Quick start guide
 ├── docs/                   # Architecture and phase planning
 ├── dbt/                    # dbt-core project for Silver/Gold transformations
-├── airflow/                # Airflow 3.0 DAGs and plugins
+├── airflow/                # Airflow 2.10.3 DAGs and plugins
 ├── scripts/                # Utility scripts (init-db.sql, health checks)
 ├── tests/                  # Unit, integration, and pipeline tests
 ├── data/                   # Local storage mounts (bronze, silver, gold)

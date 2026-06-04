@@ -34,30 +34,32 @@ def create_router(repo: StorageRepository) -> APIRouter:
         paged = results[start : start + page_size]
 
         indicators = [IndicatorResponse(**i) for i in paged]
-        envelope = ResponseEnvelope(
+        list_envelope: ResponseEnvelope[list[dict[str, object]]] = ResponseEnvelope(
             data=[ind.model_dump() for ind in indicators],
             meta=PaginationMeta(page=page, page_size=page_size, total=total),
             error=None,
         )
-        return JSONResponse(content=envelope.model_dump())
+        return JSONResponse(content=list_envelope.model_dump())
 
     @router.get("/indicators/{code}/metadata", name="get_indicator_metadata")
     async def get_indicator_metadata(code: str) -> JSONResponse:
         """Get indicator metadata by code."""
         raw = repo.get_indicator(code)
         if raw is None:
-            envelope = ResponseEnvelope(
+            not_found_envelope: ResponseEnvelope[dict[str, object]] = ResponseEnvelope(
                 data=None,
                 meta=None,
                 error=ErrorDetail(code="NOT_FOUND", message=f"Indicator '{code}' not found"),
             )
             return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
-                content=envelope.model_dump(),
+                content=not_found_envelope.model_dump(),
             )
 
         indicator = IndicatorResponse(**raw)
-        envelope = ResponseEnvelope(data=indicator.model_dump(), meta=None, error=None)
-        return JSONResponse(content=envelope.model_dump())
+        ok_envelope: ResponseEnvelope[dict[str, object]] = ResponseEnvelope(
+            data=indicator.model_dump(), meta=None, error=None
+        )
+        return JSONResponse(content=ok_envelope.model_dump())
 
     return router

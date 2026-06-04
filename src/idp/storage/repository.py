@@ -1,3 +1,5 @@
+"""PostgreSQL storage repository for countries, indicators, and timeseries data."""
+
 import logging
 from typing import Any
 

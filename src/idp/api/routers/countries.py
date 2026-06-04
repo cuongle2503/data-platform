@@ -38,7 +38,7 @@ def create_router(repo: StorageRepository) -> APIRouter:
         paged = results[start : start + page_size]
 
         countries = [CountryResponse(**c) for c in paged]
-        envelope = ResponseEnvelope(
+        envelope: ResponseEnvelope[list[dict[str, object]]] = ResponseEnvelope(
             data=[c.model_dump() for c in countries],
             meta=PaginationMeta(page=page, page_size=page_size, total=total),
             error=None,
@@ -50,18 +50,20 @@ def create_router(repo: StorageRepository) -> APIRouter:
         """Get country details by ISO code."""
         raw = repo.get_country(code)
         if raw is None:
-            envelope = ResponseEnvelope(
+            not_found_envelope: ResponseEnvelope[dict[str, object]] = ResponseEnvelope(
                 data=None,
                 meta=None,
                 error=ErrorDetail(code="NOT_FOUND", message=f"Country '{code}' not found"),
             )
             return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
-                content=envelope.model_dump(),
+                content=not_found_envelope.model_dump(),
             )
 
         country = CountryResponse(**raw)
-        envelope = ResponseEnvelope(data=country.model_dump(), meta=None, error=None)
-        return JSONResponse(content=envelope.model_dump())
+        ok_envelope: ResponseEnvelope[dict[str, object]] = ResponseEnvelope(
+            data=country.model_dump(), meta=None, error=None
+        )
+        return JSONResponse(content=ok_envelope.model_dump())
 
     return router

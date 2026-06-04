@@ -126,7 +126,7 @@ The phases follow the natural data flow through the system:
 ---
 
 ### Phase 5: Orchestration & Ops
-**Goal**: Automate the entire pipeline using Airflow 3.0 and finalize deployment
+**Goal**: Automate the entire pipeline using Airflow 2.10.3 and finalize deployment
 
 **Key Deliverables**:
 - Airflow DAG orchestrating all 5 layers

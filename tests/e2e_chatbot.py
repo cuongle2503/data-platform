@@ -1,103 +1,89 @@
-"""End-to-end test for Phase 4 Intelligence Layer (Chatbot)."""
+"""End-to-end test for Phase 4 Intelligence Layer (Chatbot REST API).
 
+Requires running PostgreSQL, Gemini API key, and populated data. Skip if unavailable.
+"""
+
+import logging
 import os
-import sys
 
 import psycopg
-
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+import pytest
+from fastapi.testclient import TestClient
 
 from idp.api.main import create_app
 from idp.intelligence.gemini_client import RAGClient
 from idp.storage.embeddings_client import GeminiEmbeddingsClient
 from idp.storage.repository import StorageRepository
 
+logger = logging.getLogger(__name__)
 
-def test_e2e_chatbot():
-    """End-to-end test: real database, real Gemini API, full RAG pipeline."""
-    print("\n" + "=" * 80)
-    print("Phase 4 E2E Test: Intelligence Layer (Chatbot)")
-    print("=" * 80)
 
-    # 1. Connect to real database
-    print("\n[1/6] Connecting to PostgreSQL...")
+@pytest.fixture
+def repo():
+    """Connect to real PostgreSQL and return a StorageRepository. Skip if unavailable."""
+    db_host = os.environ.get("POSTGRES_HOST", "")
+    if not db_host:
+        pytest.skip("POSTGRES_HOST not set — skipping E2E chatbot test")
+
     conn = psycopg.connect(
-        host=os.environ.get("POSTGRES_HOST", "localhost"),
+        host=db_host,
         port=int(os.environ.get("POSTGRES_PORT", "5433")),
         dbname=os.environ.get("POSTGRES_DB", "idp"),
         user=os.environ.get("POSTGRES_USER", "idp_user"),
         password=os.environ.get("POSTGRES_PASSWORD", "changeme"),
     )
-    print("✓ Connected to database")
-
-    # 2. Initialize repository
-    print("\n[2/6] Initializing Repository...")
     repo = StorageRepository(conn)
+    yield repo
+    conn.close()
+
+
+@pytest.fixture
+def embeddings_client():
+    """Create GeminiEmbeddingsClient, skip if API key missing."""
+    from idp.common.config import get_settings
+
+    if not get_settings().gemini.api_key:
+        pytest.skip("GEMINI_API_KEY not set — skipping E2E embeddings client")
+    return GeminiEmbeddingsClient()
+
+
+@pytest.fixture
+def rag_client():
+    """Create RAGClient, skip if API key missing."""
+    from idp.common.config import get_settings
+
+    if not get_settings().gemini.api_key:
+        pytest.skip("GEMINI_API_KEY not set — skipping E2E RAG client")
+    return RAGClient()
+
+
+@pytest.mark.slow
+@pytest.mark.integration
+def test_e2e_chatbot_rest(
+    repo: StorageRepository,
+    embeddings_client: GeminiEmbeddingsClient,
+    rag_client: RAGClient,
+) -> None:
+    """Full RAG pipeline: semantic search → context build → LLM answer."""
+    # Verify repository has data
     countries = repo.get_countries()
     indicators = repo.get_indicators()
-    print(f"✓ Repository ready: {len(countries)} countries, {len(indicators)} indicators")
+    assert len(countries) > 0, "Expected at least one country in database"
+    assert len(indicators) > 0, "Expected at least one indicator in database"
+    logger.info("Repository: %d countries, %d indicators", len(countries), len(indicators))
 
-    # 3. Initialize embeddings client
-    print("\n[3/6] Initializing Gemini Embeddings Client...")
-    try:
-        embeddings_client = GeminiEmbeddingsClient()
-        print("✓ Embeddings client ready")
-    except ValueError as e:
-        print(f"✗ Embeddings client failed: {e}")
-        print("  Skipping semantic search tests")
-        embeddings_client = None
-
-    # 4. Initialize RAG client
-    print("\n[4/6] Initializing RAG Client (Gemini)...")
-    try:
-        rag_client = RAGClient()
-        print("✓ RAG client ready")
-    except ValueError as e:
-        print(f"✗ RAG client failed: {e}")
-        print("  Cannot proceed with chatbot test")
-        conn.close()
-        return
-
-    # 5. Create FastAPI app
-    print("\n[5/6] Creating FastAPI app...")
+    # Create app with all routers
     app = create_app(repo, embeddings_client, rag_client)
-    print("✓ FastAPI app created with all routers")
-
-    # 6. Test REST chat endpoint
-    print("\n[6/6] Testing REST Chat Endpoint...")
-    from fastapi.testclient import TestClient
-
     client = TestClient(app)
 
-    # Test query
+    # Test chat endpoint
     query = "What is the GDP of Vietnam in 2023?"
-    print(f"\n  Query: '{query}'")
-
     response = client.post("/api/v1/chat", json={"query": query, "max_indicators": 5})
 
-    print(f"  Status: {response.status_code}")
-
-    if response.status_code == 200:
-        data = response.json()
-        if "data" in data:
-            answer = data["data"].get("answer", "")
-            sources = data["data"].get("sources", [])
-
-            print(f"\n  Answer:\n  {answer[:500]}...")
-            print(f"\n  Citations: {sources}")
-            print("\n✓ Chat endpoint working!")
-        else:
-            print(f"  Response: {data}")
-    else:
-        print(f"  Error: {response.text}")
-
-    # Cleanup
-    conn.close()
-    print("\n" + "=" * 80)
-    print("E2E Test Complete")
-    print("=" * 80 + "\n")
-
-
-if __name__ == "__main__":
-    test_e2e_chatbot()
+    assert response.status_code == 200, f"Chat endpoint returned {response.status_code}"
+    data = response.json()
+    assert "data" in data, f"Response missing 'data' key: {data}"
+    assert "answer" in data["data"], f"Response data missing 'answer': {data['data']}"
+    answer = data["data"]["answer"]
+    assert len(answer) > 0, "Expected non-empty answer from chat endpoint"
+    logger.info("Chat answer: %s...", answer[:200])

@@ -1,7 +1,9 @@
 """Context builder for RAG system."""
 
 
-def build_context(indicators: list[dict], timeseries_data: list[dict]) -> str:
+def build_context(
+    indicators: list[dict[str, object]], timeseries_data: list[dict[str, object]]
+) -> str:
     """
     Build markdown context from indicators and timeseries data.
     Formats data into tables for the LLM to read easily.

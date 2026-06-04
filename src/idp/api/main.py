@@ -50,7 +50,7 @@ async def validation_exception_handler(
     """Handle Pydantic validation errors."""
     logger.warning("Validation error: %s", exc.errors())
     error = ErrorDetail(code="VALIDATION_ERROR", message=str(exc.errors()))
-    envelope = ResponseEnvelope(data=None, meta=None, error=error)
+    envelope: ResponseEnvelope[object] = ResponseEnvelope(data=None, meta=None, error=error)
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=envelope.model_dump(),
@@ -62,7 +62,7 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
     """Handle all uncaught exceptions."""
     logger.exception("Unhandled exception: %s", exc)
     error = ErrorDetail(code="INTERNAL_ERROR", message="An internal error occurred")
-    envelope = ResponseEnvelope(data=None, meta=None, error=error)
+    envelope: ResponseEnvelope[object] = ResponseEnvelope(data=None, meta=None, error=error)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=envelope.model_dump(),

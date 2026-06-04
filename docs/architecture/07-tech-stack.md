@@ -13,7 +13,7 @@ These components form the foundation of the Intelligent Data Platform (IDP) and 
 - **pgvector**: PostgreSQL extension for vector embeddings storage and semantic search.
 - **FastAPI**: High-performance Python framework for building REST and WebSocket APIs.
 - **Gemini**: LLM for text embeddings (`text-embedding-004`) and RAG generation (`2.0 Flash`, `2.5 Pro`).
-- **Airflow 3.0**: Orchestration for ingestion and transformation DAGs.
+- **Airflow 2.10.3**: Orchestration for ingestion and transformation DAGs.
 - **Docker Compose**: Containerization and deployment management for the single-node setup.
 
 ## Deferred (Scale Later)

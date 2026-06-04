@@ -192,7 +192,7 @@
 
 - [x] Update `.env` with actual credentials (especially `GEMINI_API_KEY`)
 
-- [x] Create `src/common/config.py` for centralized config management using `pydantic-settings`
+- [x] Create `src/idp/common/config.py` for centralized config management using `pydantic-settings`
 
 ### 0.4 Docker Infrastructure Setup
 
@@ -386,7 +386,7 @@
 **Priority**: MEDIUM  
 **Estimated Time**: 1 hour
 
-- [x] Create `src/common/logging_config.py`:
+- [x] Create `src/idp/common/logging_config.py`:
   ```python
   import logging
   import sys

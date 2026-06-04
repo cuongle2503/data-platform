@@ -1,3 +1,5 @@
+"""Batch indicator embeddings generation and insertion into pgvector."""
+
 import logging
 from typing import Any
 

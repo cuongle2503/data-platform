@@ -1,4 +1,7 @@
+"""Gemini embeddings client for generating text embeddings."""
+
 import logging
+from typing import cast
 
 import google.generativeai as genai
 from google.api_core.exceptions import InternalServerError, ResourceExhausted
@@ -71,5 +74,5 @@ class GeminiEmbeddingsClient:
         embeddings = result["embedding"]
         # API returns list[list[float]] for batch, list[float] for single
         if texts and isinstance(embeddings[0], (int, float)):
-            return [embeddings]  # type: ignore
-        return embeddings  # type: ignore
+            return [embeddings]
+        return cast(list[list[float]], embeddings)

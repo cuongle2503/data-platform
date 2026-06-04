@@ -41,22 +41,24 @@ def create_router(repo: StorageRepository, rag_client: RAGClient) -> APIRouter:
             indicators = repo.search_indicators_lexical(normalized)
 
             # Fall back to indicator code search if entities found
-            if entities.get("country_codes") and not indicators:
-                for cc in entities["country_codes"][:3]:
+            country_codes = [str(cc) for cc in entities.get("country_codes", [])]
+            if country_codes and not indicators:
+                for cc in country_codes[:3]:
                     raw = repo.get_indicator(cc)
                     if raw:
                         indicators.append(raw)
 
             # 4. Get timeseries data if we have entities
-            timeseries_data: list[dict] = []
-            if entities["country_codes"] and indicators:
-                for cc in entities["country_codes"][:5]:
-                    codes = [ind["indicator_code"] for ind in indicators[:5]]
+            timeseries_data: list[dict[str, object]] = []
+            years = [int(y) for y in entities.get("years", [])] or None
+            if country_codes and indicators:
+                for cc in country_codes[:5]:
+                    codes = [str(ind["indicator_code"]) for ind in indicators[:5]]
                     try:
                         ts = repo.get_timeseries(
                             country=cc,
                             indicators=codes,
-                            years=entities.get("years"),
+                            years=years,
                         )
                         timeseries_data.extend(ts)
                     except Exception as exc:
@@ -72,17 +74,19 @@ def create_router(repo: StorageRepository, rag_client: RAGClient) -> APIRouter:
             sources = extract_citations(answer)
 
             response = ChatResponse(answer=answer, sources=sources)
-            envelope = ResponseEnvelope(data=response.model_dump(), meta=None, error=None)
-            return JSONResponse(content=envelope.model_dump())
+            ok_envelope: ResponseEnvelope[dict[str, object]] = ResponseEnvelope(
+                data=response.model_dump(), meta=None, error=None
+            )
+            return JSONResponse(content=ok_envelope.model_dump())
 
         except Exception as exc:
             logger.exception("Chat error: %s", exc)
-            envelope = ResponseEnvelope(
+            error_envelope: ResponseEnvelope[dict[str, object]] = ResponseEnvelope(
                 data=None,
                 meta=None,
                 error=ErrorDetail(code="CHAT_ERROR", message=str(exc)),
             )
-            return JSONResponse(content=envelope.model_dump(), status_code=500)
+            return JSONResponse(content=error_envelope.model_dump(), status_code=500)
 
     @router.websocket("/chat/ws", name="chat_websocket")
     async def chat_websocket(websocket: WebSocket) -> None:
@@ -107,17 +111,17 @@ def create_router(repo: StorageRepository, rag_client: RAGClient) -> APIRouter:
 
             # 3. Get timeseries data
             entities = extract_entities(query)
-            timeseries_data: list[dict] = []
-            if entities["country_codes"] and indicators:
-                for cc in entities["country_codes"][:3]:
-                    codes = [ind["indicator_code"] for ind in indicators[:3]]
+            timeseries_data: list[dict[str, object]] = []
+            country_codes = [str(cc) for cc in entities.get("country_codes", [])]
+            years = [int(y) for y in entities.get("years", [])] if entities.get("years") else None
+            if country_codes and indicators:
+                for cc in country_codes[:3]:
+                    codes = [str(ind["indicator_code"]) for ind in indicators[:3]]
                     try:
-                        ts = repo.get_timeseries(
-                            country=cc, indicators=codes, years=entities.get("years")
-                        )
+                        ts = repo.get_timeseries(country=cc, indicators=codes, years=years)
                         timeseries_data.extend(ts)
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning("Timeseries fetch failed for %s: %s", cc, exc)
 
             # 4. Build context
             context = build_context(indicators[:5], timeseries_data)

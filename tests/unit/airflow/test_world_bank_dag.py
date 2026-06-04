@@ -3,6 +3,7 @@
 import os
 import sys
 from datetime import timedelta
+from typing import Any
 
 import pytest
 
@@ -10,9 +11,9 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../airflow/dags"))
 
 
-def get_dag():
+def get_dag() -> Any:
     """Import and return the DAG instance."""
-    from world_bank_pipeline import world_bank_pipeline
+    from world_bank_pipeline import world_bank_pipeline  # type: ignore[import-not-found]
 
     return world_bank_pipeline()
 

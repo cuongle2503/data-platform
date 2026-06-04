@@ -8,7 +8,7 @@ Intelligent Data Platform (IDP) for economic data with World Bank focus. Built o
 2. **Silver/Gold**: DuckDB + dbt (Transformations & dimensional modeling)
 3. **Serving**: PostgreSQL + pgvector (Data warehouse & Vector Embeddings)
 4. **Intelligence**: FastAPI + Gemini (RAG Chatbot & timeseries API)
-5. **Orchestration**: Apache Airflow 3.0 (End-to-end data pipeline)
+5. **Orchestration**: Apache Airflow 2.10.3 (End-to-end data pipeline)
 
 ## Quick Start
 

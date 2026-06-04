@@ -13,6 +13,18 @@ from idp.ingestion.world_bank.pipeline import WorldBankIndicatorsPipeline
 logger = logging.getLogger(__name__)
 
 
+def _minio_client_from_settings() -> MinioClient:
+    """Create a MinioClient from current settings."""
+    settings = get_settings()
+    return MinioClient(
+        endpoint=settings.minio.endpoint,
+        access_key=settings.minio.access_key,
+        secret_key=settings.minio.secret_key,
+        secure=settings.minio.secure,
+        bucket_name=settings.minio.bucket_bronze,
+    )
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create the argument parser for ingestion CLI commands.
 
@@ -197,14 +209,7 @@ async def _run_indicators_ingestion(args: argparse.Namespace) -> int:
         return 0
 
     # Upload to MinIO
-    minio_client = MinioClient(
-        endpoint=settings.minio.endpoint,
-        access_key=settings.minio.access_key,
-        secret_key=settings.minio.secret_key,
-        secure=settings.minio.secure,
-        bucket_name=settings.minio.bucket_bronze,
-    )
-
+    minio_client = _minio_client_from_settings()
     df = pl.DataFrame(records)
     path = minio_client.upload_dataframe(df, "world_bank/indicators/data.parquet")
     logger.info(f"Uploaded {len(records)} records to {path}")
@@ -250,14 +255,7 @@ async def _run_docs_ingestion(args: argparse.Namespace) -> int:
         return 0
 
     # Upload to MinIO
-    minio_client = MinioClient(
-        endpoint=settings.minio.endpoint,
-        access_key=settings.minio.access_key,
-        secret_key=settings.minio.secret_key,
-        secure=settings.minio.secure,
-        bucket_name=settings.minio.bucket_bronze,
-    )
-
+    minio_client = _minio_client_from_settings()
     df = pl.DataFrame(records)
     path = minio_client.upload_dataframe(df, "world_bank/docs/metadata/data.parquet")
     logger.info(f"Uploaded {len(records)} document records to {path}")
@@ -315,14 +313,7 @@ async def _run_docs_text_ingestion(args: argparse.Namespace) -> int:
     logger.info(f"Generated {len(valid_records)} valid chunks")
 
     # Upload to MinIO
-    minio_client = MinioClient(
-        endpoint=settings.minio.endpoint,
-        access_key=settings.minio.access_key,
-        secret_key=settings.minio.secret_key,
-        secure=settings.minio.secure,
-        bucket_name=settings.minio.bucket_bronze,
-    )
-
+    minio_client = _minio_client_from_settings()
     df = pl.DataFrame(valid_records)
     path = minio_client.upload_dataframe(df, f"world_bank/docs/chunks/{args.doc_id}/data.parquet")
     logger.info(f"Uploaded {len(valid_records)} chunks to {path}")

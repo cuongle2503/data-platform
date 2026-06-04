@@ -59,7 +59,7 @@ World Bank APIs
 [Layer 5] Airflow → Orchestration
 ```
 
-**Tech Stack**: Python 3.11+, MinIO, DuckDB, dbt, PostgreSQL 16, pgvector, FastAPI, Gemini, Airflow 3.0
+**Tech Stack**: Python 3.11+, MinIO, DuckDB, dbt, PostgreSQL 16, pgvector, FastAPI, Gemini, Airflow 2.10.3
 
 ---
 

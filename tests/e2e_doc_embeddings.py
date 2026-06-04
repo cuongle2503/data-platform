@@ -1,92 +1,100 @@
-"""E2E test for document embeddings generation with mock Gemini client."""
+"""E2E test for document embeddings generation with mock Gemini client.
 
+Requires running MinIO and PostgreSQL instances. Skip if unavailable.
+"""
+
+import logging
 import os
 from unittest.mock import MagicMock
 
 import polars as pl
 import psycopg2
+import pytest
 
 from idp.common.minio_client import MinioClient
 from idp.storage.generate_doc_embeddings import generate_doc_embeddings
 
+logger = logging.getLogger(__name__)
 
-def run_e2e_doc_embeddings_test():
-    """End-to-end test for document embeddings generation.
+DB_URL = os.environ.get("DATABASE_URL", "")
+SAMPLE_CHUNKS = pl.DataFrame(
+    {
+        "chunk_id": ["test_doc_001_0001", "test_doc_001_0002", "test_doc_002_0001"],
+        "doc_id": ["test_doc_001", "test_doc_001", "test_doc_002"],
+        "text": [
+            "This is the first chunk of test document 001.",
+            "This is the second chunk of test document 001.",
+            "This is the first chunk of test document 002.",
+        ],
+        "chunk_index": [0, 1, 0],
+        "total_chunks": [2, 2, 1],
+        "char_count": [45, 46, 45],
+        "source": ["test", "test", "test"],
+    }
+)
 
-    This test:
-    1. Uploads sample doc chunks to MinIO
-    2. Generates embeddings using a mock Gemini client
-    3. Verifies embeddings are stored in PostgreSQL
-    4. Tests idempotency (second run creates 0 new embeddings)
-    5. Tests vector similarity search
-    """
-    db_url = os.environ.get("DATABASE_URL", "postgresql://idp_user:changeme@localhost:5433/idp")
-    minio_endpoint = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
-    minio_access = os.environ.get("MINIO_ACCESS_KEY", "minioadmin")
-    minio_secret = os.environ.get("MINIO_SECRET_KEY", "minioadmin")
 
-    # Setup: Create sample doc chunks in MinIO
-    minio_client = MinioClient(
-        endpoint=minio_endpoint,
-        access_key=minio_access,
-        secret_key=minio_secret,
+@pytest.fixture
+def db_conn():
+    """Connect to PostgreSQL, skip if unavailable."""
+    if not DB_URL:
+        pytest.skip("DATABASE_URL not set — skipping E2E doc embeddings test")
+    conn = psycopg2.connect(DB_URL)
+    yield conn
+    conn.close()
+
+
+@pytest.fixture
+def minio_client():
+    """Create a MinIO client, skip if credentials missing."""
+    endpoint = os.environ.get("MINIO_ENDPOINT", "")
+    if not endpoint:
+        pytest.skip("MINIO_ENDPOINT not set — skipping E2E doc embeddings test")
+    return MinioClient(
+        endpoint=endpoint,
+        access_key=os.environ.get("MINIO_ACCESS_KEY", "minioadmin"),
+        secret_key=os.environ.get("MINIO_SECRET_KEY", "minioadmin"),
     )
 
-    sample_chunks = pl.DataFrame(
-        {
-            "chunk_id": ["test_doc_001_0001", "test_doc_001_0002", "test_doc_002_0001"],
-            "doc_id": ["test_doc_001", "test_doc_001", "test_doc_002"],
-            "text": [
-                "This is the first chunk of test document 001.",
-                "This is the second chunk of test document 001.",
-                "This is the first chunk of test document 002.",
-            ],
-            "chunk_index": [0, 1, 0],
-            "total_chunks": [2, 2, 1],
-            "char_count": [45, 46, 45],
-            "source": ["test", "test", "test"],
-        }
-    )
 
-    # Upload to MinIO
-    test_file_path = "world_bank/docs/chunks/test_chunks.parquet"
-    minio_client.upload_dataframe(sample_chunks, test_file_path)
-    print(f"Uploaded {len(sample_chunks)} test chunks to MinIO")
+@pytest.mark.slow
+@pytest.mark.integration
+def test_doc_embeddings_idempotency(
+    db_conn: psycopg2.extensions.connection,
+    minio_client: MinioClient,
+    mock_gemini_client: MagicMock,
+) -> None:
+    """Generate doc embeddings via mock Gemini, verify idempotency and vector search."""
+    cur = db_conn.cursor()
 
-    # Connect to PostgreSQL
-    conn = psycopg2.connect(db_url)
-    cur = conn.cursor()
+    # Upload test chunks to MinIO
+    test_path = "world_bank/docs/chunks/test_chunks.parquet"
+    minio_client.upload_dataframe(SAMPLE_CHUNKS, test_path)
+    logger.info("Uploaded %d test chunks to MinIO", len(SAMPLE_CHUNKS))
 
-    # Clean up existing test embeddings
+    # Clean slate
     cur.execute("DELETE FROM embeddings.economic_embeddings WHERE ref_type = 'world_bank_report'")
-    conn.commit()
-    print("Cleaned up existing doc embeddings")
+    db_conn.commit()
 
-    # Mock Gemini client to return dummy vectors of size 768
-    mock_client = MagicMock()
-    mock_client.generate_embeddings_batch.side_effect = lambda texts: [[0.1] * 768 for _ in texts]
+    # First run
+    created = generate_doc_embeddings(db_conn, mock_gemini_client, minio_client, batch_size=2)
+    assert created == 3, f"Expected 3 embeddings created, got {created}"
 
-    # Run the generator
-    created = generate_doc_embeddings(conn, mock_client, minio_client, batch_size=2)
-    print(f"✓ Created {created} new doc embeddings")
-
-    # Verify records were inserted
+    # Verify records exist
     cur.execute(
         "SELECT COUNT(*) FROM embeddings.economic_embeddings WHERE ref_type = 'world_bank_report'"
     )
-    count_after = cur.fetchone()[0]
-    print(f"✓ Total doc embeddings in DB: {count_after}")
-    assert count_after == 3, f"Expected 3 embeddings, got {count_after}"
+    count = cur.fetchone()
+    assert count is not None and count[0] == 3, f"Expected 3 doc embeddings, got {count}"
 
-    # Verify idempotency
-    created_again = generate_doc_embeddings(conn, mock_client, minio_client, batch_size=2)
-    print(f"✓ Created {created_again} embeddings on second run (should be 0)")
+    # Second run — idempotent
+    created_again = generate_doc_embeddings(db_conn, mock_gemini_client, minio_client, batch_size=2)
     assert created_again == 0, f"Expected 0 on second run, got {created_again}"
 
-    # Verify we can do a vector search
+    # Vector search works
     cur.execute(
         """
-        SELECT ref_id, ref_type, 1 - (embedding <=> %s::vector) as similarity
+        SELECT ref_id, 1 - (embedding <=> %s::vector) as similarity
         FROM embeddings.economic_embeddings
         WHERE ref_type = 'world_bank_report'
         ORDER BY embedding <=> %s::vector
@@ -94,16 +102,10 @@ def run_e2e_doc_embeddings_test():
     """,
         ([0.1] * 768, [0.1] * 768),
     )
-
     result = cur.fetchone()
-    if result:
-        print(f"✓ Vector search successful. Found {result[0]} with similarity {result[2]:.4f}")
-    else:
-        print("✗ Vector search failed")
+    assert result is not None, "Vector search should return a result"
+    logger.info("Search successful: %s similarity=%.4f", result[0], result[1])
 
-    conn.close()
-    print("\n✓ All e2e doc embeddings tests passed!")
-
-
-if __name__ == "__main__":
-    run_e2e_doc_embeddings_test()
+    # Cleanup test data
+    cur.execute("DELETE FROM embeddings.economic_embeddings WHERE ref_type = 'world_bank_report'")
+    db_conn.commit()

@@ -1,21 +1,31 @@
 """Unit tests for FastAPI main app."""
 
+from collections.abc import Generator
+
+import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from idp.api.main import app
 
-client = TestClient(app)
+
+@pytest.fixture(autouse=True)
+def _cleanup_routes() -> Generator[None, None, None]:
+    """No-op: tests use fresh_app fixture instead of polluting global app routes."""
+    yield
 
 
-def test_health_check():
+def test_health_check() -> None:
     """Test health check endpoint."""
+    client = TestClient(app)
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
 
 
-def test_cors_headers():
+def test_cors_headers() -> None:
     """Test CORS headers are present (allow_origins='*' mirrors the Origin)."""
+    client = TestClient(app)
     response = client.options(
         "/health",
         headers={
@@ -25,44 +35,41 @@ def test_cors_headers():
     )
     assert response.status_code == 200
     assert "access-control-allow-origin" in response.headers
-    # When allow_origins=["*"], CORSMiddleware echoes the Origin back
     assert response.headers["access-control-allow-origin"] == "http://localhost:3000"
 
 
-def test_validation_error_handler():
-    """Test custom validation error handler."""
-    # Create a temporary route that requires validation
+def test_validation_error_handler(
+    fresh_app: FastAPI,
+) -> None:
+    """Test custom validation error handler — uses isolated app to avoid route pollution."""
     from pydantic import BaseModel
 
     class Item(BaseModel):
         name: str
 
-    @app.post("/test-validation")
-    def test_route(item: Item):
-        return item
+    @fresh_app.post("/test-validation")
+    def test_route(item: Item) -> dict[str, str]:
+        return item.model_dump()
 
-    # Try with missing required field
+    client = TestClient(fresh_app)
     response = client.post("/test-validation", json={})
-
     assert response.status_code == 422
     data = response.json()
     assert "error" in data
     assert data["error"]["code"] == "VALIDATION_ERROR"
 
 
-def test_global_error_handler():
-    """Test global unhandled exception handler."""
+def test_global_error_handler(
+    fresh_app: FastAPI,
+) -> None:
+    """Test global unhandled exception handler — uses isolated app."""
 
-    # Create a temporary route that raises an exception
-    @app.get("/test-error")
-    def test_error():
+    @fresh_app.get("/test-error")
+    def test_error() -> None:
         raise RuntimeError("Something went wrong")
 
-    # TestClient raises the exception by default; we need to catch it
-    # or use raise_server_exceptions=False
-    test_client_no_raise = TestClient(app, raise_server_exceptions=False)
-    response = test_client_no_raise.get("/test-error")
-
+    client = TestClient(fresh_app, raise_server_exceptions=False)
+    response = client.get("/test-error")
     assert response.status_code == 500
     data = response.json()
     assert "error" in data

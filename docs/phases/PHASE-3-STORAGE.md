@@ -47,7 +47,7 @@
 **Priority**: HIGH  
 **Estimated Time**: 4 hours
 
-- [x] Create `src/storage/embeddings_client.py`:
+- [x] Create `src/idp/storage/embeddings_client.py`:
   - Implement wrapper for Google Generative AI API (`text-embedding-004`)
   - Add batching support (API limits)
   - Implement retry logic for rate limits
@@ -59,7 +59,7 @@
 **Priority**: CRITICAL  
 **Estimated Time**: 6 hours
 
-- [x] Create `src/storage/generate_indicator_embeddings.py`:
+- [x] Create `src/idp/storage/generate_indicator_embeddings.py`:
   - Query `gold.dim_indicators` for all indicators
   - Construct rich text representation for embedding (e.g., "Indicator: GDP (current US$). Category: gdp. Description: ...")
   - Call Gemini Embeddings API
@@ -75,7 +75,7 @@
 **Priority**: MEDIUM (Deferred if docs text not ingested in Phase 1)  
 **Estimated Time**: 4 hours
 
-- [x] Create `src/storage/generate_doc_embeddings.py`:
+- [x] Create `src/idp/storage/generate_doc_embeddings.py`:
   - Query `raw_world_bank_docs_chunks` from Bronze/Silver
   - Call Gemini Embeddings API
   - Store results in `embeddings.economic_embeddings` with `ref_type='world_bank_report'`
@@ -85,7 +85,7 @@
 **Priority**: HIGH  
 **Estimated Time**: 6 hours
 
-- [x] Create `src/storage/repository.py`:
+- [x] Create `src/idp/storage/repository.py`:
   - Implement Repository pattern for API layer to use
   - `get_countries()`, `get_country(code)`
   - `get_indicators()`, `get_indicator(code)`
@@ -102,7 +102,7 @@
 
 - [x] Verify `economic_embeddings` table populated
 - [x] Test vector similarity search manually in `psql`
-- [x] Ensure >80% coverage for `src/storage/` (Achieved >92%)
+- [x] Ensure >80% coverage for `src/idp/storage/` (Achieved >92%)
 - [x] Lint & Format code
 
 ---

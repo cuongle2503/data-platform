@@ -14,7 +14,7 @@ See `docs/README.md` for complete index.
 
 - **Python** >=3.11, **uv** (package manager)
 - **MinIO** (Bronze), **DuckDB+dbt** (transform), **PostgreSQL 16+pgvector** (Gold+embeddings)
-- **FastAPI** (API), **Gemini** (LLM/embeddings), **Airflow 3.0** (orchestration)
+- **FastAPI** (API), **Gemini** (LLM/embeddings), **Airflow 2.10.3** (orchestration)
 - **ruff** (lint/format), **mypy** (types), **pytest** (tests)
 
 ## Commands

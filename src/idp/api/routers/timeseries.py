@@ -33,22 +33,22 @@ def create_router(repo: StorageRepository) -> APIRouter:
             )
         except Exception as exc:
             logger.exception("Error fetching timeseries: %s", exc)
-            envelope = ResponseEnvelope(
+            error_envelope: ResponseEnvelope[object] = ResponseEnvelope(
                 data=None,
                 meta=None,
                 error=ErrorDetail(code="QUERY_ERROR", message=str(exc)),
             )
             return JSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content=envelope.model_dump(),
+                content=error_envelope.model_dump(),
             )
 
         timeseries = [TimeseriesData(**r) for r in raw_data]
-        envelope = ResponseEnvelope(
+        ok_envelope: ResponseEnvelope[list[dict[str, object]]] = ResponseEnvelope(
             data=[ts.model_dump() for ts in timeseries],
             meta=None,
             error=None,
         )
-        return JSONResponse(content=envelope.model_dump())
+        return JSONResponse(content=ok_envelope.model_dump())
 
     return router

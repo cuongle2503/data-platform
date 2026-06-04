@@ -31,7 +31,7 @@ External sources (World Bank Open Data and World Bank Documents) feed an on-prem
 2. **Layer 2 — Transformation (Silver & Gold)**: DuckDB + dbt convert Bronze into cleaned Silver staging and Gold marts.
 3. **Layer 3 — Storage & Serving (Gold + Embeddings)**: PostgreSQL holds Gold dims/facts and an embeddings schema built on pgvector.
 4. **Layer 4 — Intelligence (RAG & Chatbot)**: FastAPI + PostgreSQL + pgvector + Gemini provide search and LLM-powered Q&A.
-5. **Layer 5 — Orchestration & Ops**: Airflow 3.0 orchestrates all jobs; Docker Compose, Nginx, and optional monitoring support operations.
+5. **Layer 5 — Orchestration & Ops**: Airflow 2.10.3 orchestrates all jobs; Docker Compose, Nginx, and optional monitoring support operations.
 
 ## Documentation Structure
 
@@ -41,7 +41,6 @@ External sources (World Bank Open Data and World Bank Documents) feed an on-prem
 - [03-layer-storage.md](03-layer-storage.md) — Layer 3: Storage & Serving
 - [04-layer-intelligence.md](04-layer-intelligence.md) — Layer 4: Intelligence (RAG & Chatbot)
 - [05-layer-orchestration.md](05-layer-orchestration.md) — Layer 5: Orchestration & Ops
-- [06-data-model.md](06-data-model.md) — World Bank Data Model
 - [07-api-spec.md](07-api-spec.md) — API Specification
 - [08-tech-stack.md](08-tech-stack.md) — Technology Stack & Decisions
 

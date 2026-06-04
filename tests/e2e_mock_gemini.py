@@ -1,40 +1,62 @@
+"""E2E test for indicator embeddings generation with mocked Gemini client.
+
+Requires a running PostgreSQL instance with pgvector. Skip if unavailable.
+"""
+
+import logging
 import os
 from unittest.mock import MagicMock
 
 import psycopg2
+import pytest
 
-from idp.storage.generate_indicator_embeddings import (
-    generate_indicator_embeddings,
-)
+from idp.storage.generate_indicator_embeddings import generate_indicator_embeddings
+
+logger = logging.getLogger(__name__)
+
+DB_URL = os.environ.get("DATABASE_URL", "")
 
 
-def run_e2e_test():
-    db_url = os.environ.get("DATABASE_URL", "postgresql://idp_user:changeme@localhost:5433/idp")
-    conn = psycopg2.connect(db_url)
+@pytest.fixture
+def db_conn():
+    """Connect to PostgreSQL. Skip test if unavailable."""
+    if not DB_URL:
+        pytest.skip("DATABASE_URL not set — skipping E2E embedding test")
 
-    # Check starting state
-    cur = conn.cursor()
+    conn = psycopg2.connect(DB_URL)
+    yield conn
+    conn.close()
+
+
+@pytest.mark.slow
+@pytest.mark.integration
+def test_generate_indicator_embeddings_idempotency(
+    db_conn: psycopg2.extensions.connection,
+    mock_gemini_client: MagicMock,
+) -> None:
+    """Verify embedding generation is idempotent and creates searchable vectors."""
+    cur = db_conn.cursor()
+
+    # Clean slate
     cur.execute("DELETE FROM embeddings.economic_embeddings;")
-    conn.commit()
+    db_conn.commit()
 
-    # Mock Gemini client to return dummy vectors of size 768
-    mock_client = MagicMock()
-    mock_client.generate_embeddings_batch.side_effect = lambda texts: [[0.1] * 768 for _ in texts]
+    # First run should create embeddings
+    created = generate_indicator_embeddings(db_conn, mock_gemini_client, batch_size=5)
+    assert created > 0, f"Expected embeddings to be created, got {created}"
+    logger.info("Created %d new embeddings", created)
 
-    # Run the generator
-    created = generate_indicator_embeddings(conn, mock_client, batch_size=5)
-    print(f"Created {created} new embeddings")
-
-    # Verify records were inserted
+    # Verify records exist
     cur.execute("SELECT COUNT(*) FROM embeddings.economic_embeddings")
-    count_after = cur.fetchone()[0]
-    print(f"Total embeddings in DB: {count_after}")
+    count_after = cur.fetchone()
+    assert count_after is not None
+    assert count_after[0] > 0, "Expected embeddings records in database"
 
-    # Verify idempotency
-    created_again = generate_indicator_embeddings(conn, mock_client, batch_size=5)
-    print(f"Created {created_again} embeddings on second run (should be 0)")
+    # Second run should be idempotent (create 0)
+    created_again = generate_indicator_embeddings(db_conn, mock_gemini_client, batch_size=5)
+    assert created_again == 0, f"Expected 0 new embeddings on re-run, got {created_again}"
 
-    # Verify we can do a vector search
+    # Verify vector search works
     cur.execute(
         """
         SELECT ref_id, 1 - (embedding <=> %s::vector) as similarity
@@ -43,13 +65,6 @@ def run_e2e_test():
     """,
         ([0.1] * 768,),
     )
-
     result = cur.fetchone()
-    if result:
-        print(f"Search successful. Found {result[0]} with similarity {result[1]:.4f}")
-
-    conn.close()
-
-
-if __name__ == "__main__":
-    run_e2e_test()
+    assert result is not None, "Expected vector search to return a result"
+    logger.info("Search successful: %s similarity=%.4f", result[0], result[1])
