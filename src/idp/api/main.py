@@ -75,6 +75,8 @@ async def health_check() -> dict[str, str]:
     return {"status": "healthy"}
 
 
+from idp.common.config import get_settings
+
 def create_app(
     repo: StorageRepository,
     embeddings_client: GeminiEmbeddingsClient | None = None,
@@ -98,3 +100,28 @@ def create_app(
             tags=["chat"],
         )
     return app
+
+# Auto-initialize routers for uvicorn
+import psycopg
+
+try:
+    settings = get_settings()
+    pg_conn = psycopg.connect(settings.postgres.database_url)
+    repo = StorageRepository(pg_conn)
+
+    embeddings_client = None
+    rag_client = None
+
+    if settings.gemini.api_key:
+        embeddings_client = GeminiEmbeddingsClient(
+            api_key=settings.gemini.api_key,
+            model_name=settings.gemini.embedding_model,
+        )
+        rag_client = RAGClient(
+            api_key=settings.gemini.api_key,
+            model_name=settings.gemini.chat_model,
+        )
+
+    create_app(repo, embeddings_client, rag_client)
+except Exception as e:
+    logger.error(f"Failed to auto-initialize API routers: {e}")
